@@ -43,12 +43,20 @@ def init_terrain(rows = 160, cols = 120):
        
     # Create "highways"
     for _ in range(4):
-        c_dir = random.randint(1, 4)
         cur_v = None
         success = False 
-        
+        list_v = []        
+
         while not success: 
-            pass 
+            cur_v = random.choice([
+                t[random.choice([0, rows - 1])][random.randint(0, cols - 1)], 
+                t[random.randint(0, rows - 1)][random.choice([0, cols - 1])]
+            ]) 
+
+            c_dir = random.randint(1, 4)
+            list_v.append(cur_v)
+             
+              
                    
     return t 
 
