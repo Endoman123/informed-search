@@ -1,6 +1,13 @@
 import random
+import math
 
 random.seed()
+
+
+start = [-1, -1]
+goal = [-1, -1]
+
+c_hardregions = []
 
 # Vertex represents one cell in the terrain
 # As per the spec in the assignment, terrain is marked with a character 
@@ -74,7 +81,9 @@ def init_terrain(rows = 160, cols = 120):
     for _ in range(8):
         x = random.randint(0, cols - 1)    
         y = random.randint(0, rows - 1)
-    
+  
+        c_hardregions.append([x, y])
+  
         t_slice = t[y - 15:y + 15][x - 15:x + 15]  
         
         for row in t_slice:
@@ -161,4 +170,17 @@ def init_terrain(rows = 160, cols = 120):
  
     return ret 
 
-terrain = init_terrain()
+def writeGridWorld(fname):
+    f = fopen(fname, "w")
+
+    f.write(f"{start[0]} {start[1]}" + os.linesep)
+    f.write(f"{goal[0]} {goal[1]}" + os.linesep)
+
+# Initialize a new grid world
+def initGridWorld(rows = 160, cols = 160):
+    terrain = init_terrain(rows, cols)
+    
+    while math.pow(goal[0] - start[0], 2) + math.pow(goal[1] - start[1], 2) < 10000:
+        start = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
+        goal = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
+

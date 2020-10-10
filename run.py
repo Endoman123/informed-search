@@ -1,5 +1,7 @@
+import gridworld
+
 def main():
-    print("Hello World")
+    gridworld.init_terrain()
 
 if __name__ == "__main__":
     main()
