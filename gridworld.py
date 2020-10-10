@@ -43,21 +43,53 @@ def init_terrain(rows = 160, cols = 120):
        
     # Create "highways"
     for _ in range(4):
-        cur_v = None
+        x = -1
+        y = -1
         success = False 
         list_v = []        
 
-        while not success: 
-            cur_v = random.choice([
-                t[random.choice([0, rows - 1])][random.randint(0, cols - 1)], 
-                t[random.randint(0, rows - 1)][random.choice([0, cols - 1])]
-            ]) 
+        while not success:
+            # Choose side pair 
+            if bool(random.getrandbits(1)): 
+                x = random.randint(0, cols - 1)
+                y = random.choice([0, rows - 1])
+            else: 
+                x = random.choice([0, cols - 1]) 
+                y = random.randint(0, rows - 1)
 
-            c_dir = random.randint(1, 4)
-            list_v.append(cur_v)
-             
-              
-                   
+            state = 0
+            n_v = 0 
+            
+            # Highway state machine
+            while 
+                c_dir = random.randint(1, 4)
+                
+                t[x][y].direction = c_dir
+
+                list_v.append(t[x][y])
+                n_v++ 
+
+                if n_v < 20
+                    if c_dir == 1:
+                        y--
+                    elif c_dir == 2:
+                        x--
+                    elif c_dir == 3:
+                        y++
+                    else:
+                        c_dir = 4
+                        x++             
+       
+    # Generate "walls"       
+    for _ in range(size):
+        v = None 
+        while True:
+            v = t[random.randint(0, rows - 1)][random.randint(0, cols - 1)]
+            if v.direction == 0:
+                break
+
+        v.difficulty = 2 
+ 
     return t 
 
 terrain = init_terrain()
