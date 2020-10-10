@@ -59,13 +59,13 @@ class Vertex:
 def init_terrain(rows = 160, cols = 120):
     # Save total number of cells for later use
     size = rows * cols
-
-    # Initialize cells to be blocked 
-    ret = [[Vertex('0') for _ in range(cols + 1)] for _ in range(rows + 1)] 
     
+    # Initialize cells to be blocked 
+    ret = [[Vertex('0') for _ in range(cols + 2)] for _ in range(rows + 2)] 
+ 
     # Select the internal section to be unblocked.
     # We will modify this map.
-    t = ret[1:rows + 1][1:cols + 1] 
+    t = [[ret[i][j] for j in range(1, cols + 1)] for i in range(1, rows + 1)]
     for row in t:
         for v in row:
             v.code = '1'    
@@ -79,9 +79,8 @@ def init_terrain(rows = 160, cols = 120):
         
         for row in t_slice:
             for v in row:
-                v.code = '2'
+                v.code = random.choice(['1', '2'])
     
-    print(ret)    
     # Create "highways"
     # NOTE: Assume after 10 tries that highways cannot be generated given the current config
     # 
@@ -116,7 +115,6 @@ def init_terrain(rows = 160, cols = 120):
             
             while not end: 
                 for _ in range(20):
-                    print(f"{x}, {y}")
                     list_v.append(t[y][x])
                     
                     if c_dir == 0:
@@ -164,4 +162,3 @@ def init_terrain(rows = 160, cols = 120):
     return ret 
 
 terrain = init_terrain()
-print(terrain)
