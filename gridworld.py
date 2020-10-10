@@ -80,6 +80,8 @@ def init_terrain(rows = 160, cols = 120):
  
     # Select random partially blocked cells 
     for _ in range(8):
+        global c_hardregions
+
         x = random.randint(0, cols - 1)    
         y = random.randint(0, rows - 1)
   
@@ -171,17 +173,28 @@ def init_terrain(rows = 160, cols = 120):
  
     return ret 
 
-def write_gridworld(fname):
-    f = open(fname, "w")
+def write_gridworld(path):
+    with open(path, 'w') as f:
+        f.write(f"{start[0]} {start[1]}" + os.linesep)
+        f.write(f"{goal[0]} {goal[1]}" + os.linesep)
 
-    f.write(f"{start[0]} {start[1]}" + os.linesep)
-    f.write(f"{goal[0]} {goal[1]}" + os.linesep)
+        for r in c_hardregions:
+            f.write(f"{r[0]} {r[1]}" + os.linesep)
+        
+        for row in terrain:
+            f.write(''.join([v.code for v in row]) + os.linesep)     
 
-    for r in c_hardregions:
-        f.write(f"{r[0]} {r[1]}" + os.linesep)
-    
-    for row in terrain:
-        f.write(''.join([v.code for v in row]) + os.linesep)     
+def load_gridworld(path):
+    global terrain, start, goal
+    with open(path) as f:
+        start = [int(x) for x in f.readline().split(' ')]
+        end = [int(x) for x in f.readline().split(' ')]
+
+        for _ in range(8):
+            c_hardregions.append([int(x) for x in f.readline().split(' ')])
+
+        for line in f:
+            terrain.append([Vertex(x) for x in line])
 
 # Initialize a new grid world
 def init_gridworld(rows = 160, cols = 160):
