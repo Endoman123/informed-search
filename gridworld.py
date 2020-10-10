@@ -3,7 +3,6 @@ import math
 
 random.seed()
 
-
 start = [-1, -1]
 goal = [-1, -1]
 
@@ -27,19 +26,19 @@ class Vertex:
     def __init__(self, c):
         self.code = c
 
-    def isHighway(self):
+    def is_highway(self):
         return self.code == 'a' or self.code == 'b'
     
-    def isBlocked(self):
+    def is_blocked(self):
         return self.code == '0'
 
-    def isUnblocked(self):
+    def is_unblocked(self):
         return self.code == '1' or self.code == 'a'
 
-    def isHardToTraverse(self):
+    def is_hardtotraverse(self):
         return self.code == '2' or self.code == 'b'
 
-    def markHighway(self):
+    def mark_highway(self):
         if self.code == '0':
             raise Exception("Blocked, cannot set to highway")
         elif self.code == '1':
@@ -47,7 +46,7 @@ class Vertex:
         elif self.code == '2':
             self.code = 'b'
     
-    def unmarkHighway(self):
+    def unmark_highway(self):
         if self.code == 'a':
             self.code = '1'
         elif self.code == 'b':
@@ -136,16 +135,16 @@ def init_terrain(rows = 160, cols = 120):
                         c_dir = 3
                         x += 1
 
-                    if x < 0 or x >= cols or y < 0 or y >= rows or t[y][x].isHighway():
+                    if x < 0 or x >= cols or y < 0 or y >= rows or t[y][x].is_highway():
                         end = True 
                         break
 
                 if not end:
                     c_dir = (c_dir + random.choice([0, 0, 0, 1, 3])) % 4
 
-            if len(list_v) >= 100 and not list_v[len(list_v) - 1].isHighway(): 
+            if len(list_v) >= 100 and not list_v[len(list_v) - 1].is_highway(): 
                 for v in list_v:
-                    v.markHighway() 
+                    v.mark_highway() 
                 success = True
                 n_highways += 1
             else:
@@ -156,31 +155,34 @@ def init_terrain(rows = 160, cols = 120):
 
                     for row in t:
                         for v in row:
-                            v.unmarkHighway()         
+                            v.unmark_highway()         
 
     # Generate "walls"       
     for _ in range(size):
         v = None 
         while True:
             v = t[random.randint(0, rows - 1)][random.randint(0, cols - 1)]
-            if not v.isHighway():
+            if not v.is_highway():
                 break
 
         v.code = '0' 
  
     return ret 
 
-def writeGridWorld(fname):
+def write_gridworld(fname):
     f = fopen(fname, "w")
 
     f.write(f"{start[0]} {start[1]}" + os.linesep)
     f.write(f"{goal[0]} {goal[1]}" + os.linesep)
 
 # Initialize a new grid world
-def initGridWorld(rows = 160, cols = 160):
+def init_gridworld(rows = 160, cols = 160):
     terrain = init_terrain(rows, cols)
     
-    while math.pow(goal[0] - start[0], 2) + math.pow(goal[1] - start[1], 2) < 10000:
+    while True:
         start = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
         goal = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
+        
+        if math.pow(goal[0] - start[0], 2) + math.pow(goal[1] - start[1], 2) >= 10000:
+            break
 
