@@ -1,10 +1,12 @@
 import random
 import math
+import os
 
 random.seed()
 
 start = [-1, -1]
 goal = [-1, -1]
+terrain = []
 
 c_hardregions = []
 
@@ -170,13 +172,20 @@ def init_terrain(rows = 160, cols = 120):
     return ret 
 
 def write_gridworld(fname):
-    f = fopen(fname, "w")
+    f = open(fname, "w")
 
     f.write(f"{start[0]} {start[1]}" + os.linesep)
     f.write(f"{goal[0]} {goal[1]}" + os.linesep)
 
+    for r in c_hardregions:
+        f.write(f"{r[0]} {r[1]}" + os.linesep)
+    
+    for row in terrain:
+        f.write(''.join([v.code for v in row]) + os.linesep)     
+
 # Initialize a new grid world
 def init_gridworld(rows = 160, cols = 160):
+    global terrain, start, goal 
     terrain = init_terrain(rows, cols)
     
     while True:
