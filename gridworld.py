@@ -19,7 +19,7 @@ c_hardregions = []
 # - b: hard to traverse highway
 # Helper methods are provided to make getting info easier, as well as highway marking
 class Vertex:
-    code = '1'
+    __code = '1'
     f = -1
     g = -1
     h = -1
@@ -28,19 +28,19 @@ class Vertex:
     def __init__(self, c):
         self.code = c
 
-    def is_highway(self):
+    def isHighway(self):
         return self.code == 'a' or self.code == 'b'
     
-    def is_blocked(self):
+    def isBlocked(self):
         return self.code == '0'
 
-    def is_unblocked(self):
+    def isUnblocked(self):
         return self.code == '1' or self.code == 'a'
 
-    def is_hardtotraverse(self):
+    def isHardToTraverse(self):
         return self.code == '2' or self.code == 'b'
 
-    def mark_highway(self):
+    def markHighway(self):
         if self.code == '0':
             raise Exception("Blocked, cannot set to highway")
         elif self.code == '1':
@@ -48,12 +48,21 @@ class Vertex:
         elif self.code == '2':
             self.code = 'b'
     
-    def unmark_highway(self):
+    def unmarkHighway(self):
         if self.code == 'a':
             self.code = '1'
         elif self.code == 'b':
-            self.code = '2' 
+            self.code = '2'  
 
+    def markUnblocked():
+        self.__code = '1'
+
+    def markHardToTraverse():
+        self.__code = '2'
+ 
+    def markBlocked():
+        self.__code = '0'   
+    
     def __repr__(self): 
         return f"{self.code}"
 
@@ -76,8 +85,8 @@ def init_terrain(rows = 160, cols = 120):
     t = [[ret[i][j] for j in range(1, cols + 1)] for i in range(1, rows + 1)]
     for row in t:
         for v in row:
-            v.code = '1'    
- 
+            v.markUnblocked()    
+
     # Select random partially blocked cells 
     for _ in range(8):
         global c_hardregions
@@ -91,7 +100,7 @@ def init_terrain(rows = 160, cols = 120):
         
         for row in t_slice:
             for v in row:
-                v.code = random.choice(['1', '2'])
+                random.choice([v.markBlocked, v.markUnblocked])()
     
     # Create "highways"
     # NOTE: Assume after 10 tries that highways cannot be generated given the current config
@@ -139,16 +148,16 @@ def init_terrain(rows = 160, cols = 120):
                         c_dir = 3
                         x += 1
 
-                    if x < 0 or x >= cols or y < 0 or y >= rows or t[y][x].is_highway():
+                    if x < 0 or x >= cols or y < 0 or y >= rows or t[y][x].isHighway():
                         end = True 
                         break
 
                 if not end:
                     c_dir = (c_dir + random.choice([0, 0, 0, 1, 3])) % 4
 
-            if len(list_v) >= 100 and not list_v[len(list_v) - 1].is_highway(): 
+            if len(list_v) >= 100 and not list_v[len(list_v) - 1].isHighway(): 
                 for v in list_v:
-                    v.mark_highway() 
+                    v.markHighway() 
                 success = True
                 n_highways += 1
             else:
@@ -159,21 +168,21 @@ def init_terrain(rows = 160, cols = 120):
 
                     for row in t:
                         for v in row:
-                            v.unmark_highway()         
+                            v.unmarkHighway()         
 
     # Generate "walls"       
     for _ in range(size):
         v = None 
         while True:
             v = t[random.randint(0, rows - 1)][random.randint(0, cols - 1)]
-            if not v.is_highway():
+            if not v.isHighway():
                 break
 
-        v.code = '0' 
+        v.markBlocked() 
  
     return ret 
 
-def write_gridworld(path):
+def writeGridworld(path):
     with open(path, 'w') as f:
         f.write(f"{start[0]} {start[1]}" + os.linesep)
         f.write(f"{goal[0]} {goal[1]}" + os.linesep)
@@ -182,9 +191,9 @@ def write_gridworld(path):
             f.write(f"{r[0]} {r[1]}" + os.linesep)
         
         for row in terrain:
-            f.write(''.join([v.code for v in row]) + os.linesep)     
+            f.write(''.join([repr(v) for v in row]) + os.linesep)     
 
-def load_gridworld(path):
+def loadGridworld(path):
     global terrain, start, goal
     with open(path) as f:
         start = [int(x) for x in f.readline().split(' ')]
@@ -197,9 +206,9 @@ def load_gridworld(path):
             terrain.append([Vertex(x) for x in line])
 
 # Initialize a new grid world
-def init_gridworld(rows = 160, cols = 160):
+def initGridworld(rows = 160, cols = 160):
     global terrain, start, goal 
-    terrain = init_terrain(rows, cols)
+    terrain = initTerrain(rows, cols)
     
     while True:
         start = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
