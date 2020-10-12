@@ -1,6 +1,7 @@
 import random
 import math
 import os
+import ai
 
 random.seed()
 
@@ -23,7 +24,9 @@ class Vertex:
     f = -1
     g = -1
     h = -1
-    parent = None
+    parent_x = -1
+    parent_y = -1
+    coordinates = (-1, -1)
 
     def __init__(self, c):
         self.code = c
@@ -54,13 +57,13 @@ class Vertex:
         elif self.code == 'b':
             self.code = '2'  
 
-    def markUnblocked():
+    def markUnblocked(self):
         self.__code = '1'
 
-    def markHardToTraverse():
+    def markHardToTraverse(self):
         self.__code = '2'
  
-    def markBlocked():
+    def markBlocked(self):
         self.__code = '0'   
     
     def __repr__(self): 
@@ -179,7 +182,9 @@ def init_terrain(rows = 120, cols = 160):
                 break
 
         v.markBlocked() 
- 
+    for i in range(rows + 2):
+        for j in range(cols + 2):
+            ret[i][j].coordinates = (i, j)
     return ret 
 
 def writeGridworld(path): 
@@ -205,10 +210,10 @@ def loadGridworld(path):
         for line in f:
             terrain.append([Vertex(x) for x in line])
 
-# Initialize a new grid world
+
 def initGridworld(rows = 160, cols = 160):
     global terrain, start, goal 
-    terrain = initTerrain(rows, cols)
+    terrain = init_terrain(rows, cols)
     
     while True:
         start = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
@@ -216,4 +221,3 @@ def initGridworld(rows = 160, cols = 160):
         
         if math.pow(goal[0] - start[0], 2) + math.pow(goal[1] - start[1], 2) >= 10000:
             break
-
