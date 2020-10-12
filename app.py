@@ -4,19 +4,21 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 
+rows = 120
+cols = 160
+
 class AppWindow(QMainWindow):
     def __init__(self, parent = None):
         super().__init__(parent)
         
-        toolbar = self.build_toolbar() 
-        grid = self.build_grid()
+        toolbar = self.buildToolbar()
+        grid = self.buildGrid() 
 
-        self.addToolBar(toolbar)
-
-        self.centerWidget = grid 
-    
-            
-    def build_toolbar(self):
+        toolbar.actionTriggered[QAction].connect(self.tbOnPressed)
+        self.addToolBar(toolbar) 
+        self.setCentralWidget(grid)         
+   
+    def buildToolbar(self):
         ret = QToolBar()
     
         a_new = QAction("New", self)
@@ -33,15 +35,55 @@ class AppWindow(QMainWindow):
         
         return ret
     
-    def build_grid(self):
+    def buildGrid(self):
         ret = QWidget()
         container = QVBoxLayout() 
         grid = QGridLayout()
-    
+       
+        grid.setSpacing(0)
+ 
+        for i in range(rows):
+            for j in range(cols):
+                grid.addWidget(GridCell(self), i, j) 
+        
         container.addLayout(grid) 
         ret.setLayout(container)
 
         return ret
+
+    def tbOnPressed(self, event):
+        if event.text == "Save":
+            pass
+        elif event.text == "Open":
+            pass
+        else:
+            gridworld.initGridWorld(rows, cols)
+
+class GridCell(QFrame):
+    __vertex = None 
+    
+    def __init__(self, parent = None, v = None):
+        super().__init__(parent) 
+        self.setFrameStyle(QFrame.Panel) 
+        self.__vertex = v
+
+    def paintEvent(self, event):
+        v = self.__vertex
+        palette = self.palette()
+        painter = QPainter()   
+
+        painter.begin(self)
+
+        if v != None:
+            if v.isUnblocked():
+                palette.setColor(self.backgroundRole(), Qt.yellow)
+        else:
+            palette.setColor(self.backgroundRole(), Qt.black)
+
+        painter.end()
+
+        self.setPalette(palette)
+        super().paintEvent(event)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -41,12 +41,12 @@ class Vertex:
         return self.code == '2' or self.code == 'b'
 
     def markHighway(self):
-        if self.code == '0':
-            raise Exception("Blocked, cannot set to highway")
-        elif self.code == '1':
+        if self.code == '1':
             self.code = 'a'
         elif self.code == '2':
             self.code = 'b'
+        else:
+            print("Cannot set vertex to highway")
     
     def unmarkHighway(self):
         if self.code == 'a':
@@ -73,7 +73,7 @@ class Vertex:
 # - Create 4 highways
 # - Select 20% of the total number of cells to be blocked cells
 # For more information, see section 2 of assignment.pdf
-def init_terrain(rows = 160, cols = 120):
+def init_terrain(rows = 120, cols = 160):
     # Save total number of cells for later use
     size = rows * cols
     
@@ -182,7 +182,7 @@ def init_terrain(rows = 160, cols = 120):
  
     return ret 
 
-def writeGridworld(path):
+def writeGridworld(path): 
     with open(path, 'w') as f:
         f.write(f"{start[0]} {start[1]}" + os.linesep)
         f.write(f"{goal[0]} {goal[1]}" + os.linesep)
