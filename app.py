@@ -128,8 +128,38 @@ class QGridScene(QGraphicsScene):
                         b.setColor(Qt.gray)
                         b.setStyle(Qt.SolidPattern)
             
-                    cells[y * cols + x].setBrush(b) 
+                    cells[y * cols + x].setBrush(b)
 
+                    if v.isHighway():
+                        v_n = gridworld.terrain[y][x + 1]
+                        v_s = gridworld.terrain[y + 2][x + 1]
+                        v_w = gridworld.terrain[y + 1][x]
+                        v_e = gridworld.terrain[y + 1][x + 2]
+
+                        p_hw = QPen(Qt.blue)
+                            
+                        xc = x * self.__WIDTH + 0.5 * self.__WIDTH
+                        yc = y * self.__HEIGHT + 0.5 * self.__HEIGHT
+                        
+                        if v_n.isHighway():
+                            h = QGraphicsLineItem(xc, yc, xc, yc - 0.5 * self.__HEIGHT)
+                            h.setPen(p_hw)
+                            self.__highways.addToGroup(h)
+
+                        if v_s.isHighway():
+                            h = QGraphicsLineItem(xc, yc, xc, yc + 0.5 * self.__HEIGHT)
+                            h.setPen(p_hw)
+                            self.__highways.addToGroup(h)
+
+                        if v_w.isHighway():
+                            h = QGraphicsLineItem(xc, yc, xc - 0.5 * self.__WIDTH, yc)
+                            h.setPen(p_hw)
+                            self.__highways.addToGroup(h)
+
+                        if v_e.isHighway():
+                            h = QGraphicsLineItem(xc, yc, xc + 0.5 * self.__WIDTH, yc)
+                            h.setPen(p_hw)
+                            self.__highways.addToGroup(h)
  
     def displayPathfinding(self):
         for i in range(rows):
