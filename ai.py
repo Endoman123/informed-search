@@ -1,5 +1,6 @@
 import gridworld
 import math
+from math import sqrt
 
 def isValid(row, col):
     return (row >= 0) & (row < 120) & (col >= 0) & (col < 160)
@@ -30,6 +31,27 @@ def getHValue(x, y, goal):
     h = math.sqrt(((end_x - x) * (end_x - x)) + ((end_y - y) * (end_y - y)))
     return h
 
+def getHValDiagonalDistance (x, y, goal):
+    end_x, end_y = goal.coordinates
+    h = max(abs(x - end_x), abs(y - end_y))
+    return h
+
+def getHValEuclideanDistance (x, y, goal):
+    end_x, end_y = goal.coordinates
+    h = sqrt(pow((x - end_x), 2) + pow((y - end_y), 2))
+    return h  
+    
+def getHValCustom (x, y, goal, start):
+    end_x, end_y = goal.coordinates
+    begin_x, begin_y = start.coordinates
+    stDistance = sqrt(pow(end_x - begin_x, 2) + pow(end_y - begin_y, 2))
+    h = abs(stDistance - (sqrt(pow(x - start_x, 2) + pow(y - start_y, 2))))
+    return h
+
+def getHValManhattanDistance (x, y, goal):
+    end_x, end_y = goal.coordinates
+    h = abs(x - end_x) + abs(y - end_y)
+    return h
 # A* Search
 # Start is a pair of coordinates for the start and end is a pair of coordinates for the end
 def a_star(map, start, end):
