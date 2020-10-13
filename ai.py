@@ -54,7 +54,7 @@ def getHValManhattanDistance (x, y, goal):
     return h
 # A* Search
 # Start is a pair of coordinates for the start and end is a pair of coordinates for the end
-def a_star(map, start, end):
+def a_star(map, start, end, weightedA):
     print(start.coordinates)
     if isValid(start.coordinates[0], start.coordinates[1]) is False:
         print("Invalid Start")
@@ -120,7 +120,13 @@ def a_star(map, start, end):
 
 
                 hNew = getHValue(x - 1, y, end)
+                #Need to use two w values, so am putting in copy variables
+                hNewCopy = hNew
+                if weightedA == True:
+                    hNew *= 1.25
+                    hNewCopy *= 2
                 fNew = gNew + hNew
+                fNewCopy = gNew + hNewCopy
                 if map[x - 1][y].f > fNew:
                     openList.append((fNew, (x - 1, y)))
                     map[x - 1][y].f = fNew
