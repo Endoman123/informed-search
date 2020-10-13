@@ -29,33 +29,33 @@ class Vertex:
     coordinates = (-1, -1)
 
     def __init__(self, c):
-        self.code = c
+        self.__code = c
 
     def isHighway(self):
-        return self.code == 'a' or self.code == 'b'
+        return self.__code == 'a' or self.__code == 'b'
     
     def isBlocked(self):
-        return self.code == '0'
+        return self.__code == '0'
 
     def isUnblocked(self):
-        return self.code == '1' or self.code == 'a'
+        return self.__code == '1' or self.__code == 'a'
 
     def isHardToTraverse(self):
-        return self.code == '2' or self.code == 'b'
+        return self.__code == '2' or self.__code == 'b'
 
     def markHighway(self):
-        if self.code == '1':
-            self.code = 'a'
-        elif self.code == '2':
-            self.code = 'b'
+        if self.__code == '1':
+            self.__code = 'a'
+        elif self.__code == '2':
+            self.__code = 'b'
         else:
             print("Cannot set vertex to highway")
     
     def unmarkHighway(self):
-        if self.code == 'a':
-            self.code = '1'
-        elif self.code == 'b':
-            self.code = '2'  
+        if self.__code == 'a':
+            self.__code = '1'
+        elif self.__code == 'b':
+            self.__code = '2'  
 
     def markUnblocked(self):
         self.__code = '1'
@@ -67,7 +67,7 @@ class Vertex:
         self.__code = '0'   
     
     def __repr__(self): 
-        return f"{self.code}"
+        return f"{self.__code}"
 
 # Init terrain as follows:
 # - Define a grid map 1 cell bigger with all blocked cells
