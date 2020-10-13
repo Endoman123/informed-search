@@ -50,19 +50,51 @@ class AppWindow(QMainWindow):
 class QGridScene(QGraphicsScene):
     __WIDTH = 7 
     __HEIGHT = 7
-    __cells = []
+    __cells = None
+    __highways = None 
+    __start = None
+    __goal = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        cells = QGraphicsItemGroup()
+        highways = QGraphicsItemGroup() 
+        points = QGraphicsItemGroup()
         grid = QGraphicsItemGroup()
-
+         
         width = cols * self.__WIDTH
         height = rows * self.__HEIGHT
         
-        grid.setZValue(100)
-        self.addItem(grid) 
+        cells.setZValue(0) 
+        grid.setZValue(1)
+        highways.setZValue(2)
+        points.setZValue(3)
+         
+        self.addItem(cells) 
+        self.addItem(grid)
+        self.addItem(highways) 
+        self.addItem(points)
+
         self.setSceneRect(0, 0, width, height)
         self.setItemIndexMethod(QGraphicsScene.NoIndex)
+
+        self.__start = QGraphicsEllipseItem(1, 1, self.__WIDTH - 2, self.__HEIGHT - 2)
+        self.__goal = QGraphicsEllipseItem(1, 1, self.__WIDTH - 2, self.__HEIGHT - 2)  
+
+        self.__start.setPen(QPen(Qt.NoPen))
+        self.__start.setBrush(QBrush(Qt.green))
+        self.__goal.setPen(QPen(Qt.NoPen))
+        self.__goal.setBrush(QBrush(Qt.red))
+
+        self.__start.setVisible(False)
+        self.__goal.setVisible(False)
+
+        points.addToGroup(self.__start)
+        points.addToGroup(self.__goal)
+
+        for i in range(rows):
+            for j in range(cols):
+                cells.addToGroup(QGraphicsRectItem(j * self.__WIDTH, i * self.__HEIGHT, self.__WIDTH, self.__HEIGHT))
 
         for x in range(0, cols + 1):
             xc = x * self.__WIDTH
@@ -72,61 +104,43 @@ class QGridScene(QGraphicsScene):
             yc = y * self.__HEIGHT
             grid.addToGroup(QGraphicsLineItem(0, yc, width, yc))
 
+        self.__cells = cells
+        self.__highways = highways
+
     def paintGridworld(self):
-        for c in self.__cells:
-            self.removeItem(c) 
+        self.__start.setPos(gridworld.start[0] * self.__WIDTH, gridworld.start[1] * self.__HEIGHT)
+        self.__goal.setPos(gridworld.goal[0] * self.__WIDTH, gridworld.goal[1]* self.__HEIGHT)
+
+        self.__start.setVisible(True)
+        self.__goal.setVisible(True)
 
         if gridworld.terrain: 
+            cells = self.__cells.childItems() 
             for y in range(rows):
                 for x in range(cols):
-                    b = QBrush(Qt.gray)
-                    v = gridworld.terrain[y + 1][x + 1]
-                    
-                    if v.isUnblocked():
-                        b.setStyle(Qt.NoBrush) 
-                    elif v.isUnblocked():
-                        b.setStyle(Qt.Dense6Pattern)
-                    elif v.isBlocked():
-                        b.setStyle(Qt.SolidPattern)
-                    
-                    self.__cells.append(self.addRect(x * self.__WIDTH, y * self.__HEIGHT, self.__WIDTH, self.__HEIGHT, QPen(Qt.NoPen), b))
+                    v = gridworld.terrain[y + 1][x + 1] 
+                    b = QBrush(Qt.NoBrush)
 
+                    if v.isHardToTraverse():
+                        b.setColor(Qt.darkGreen)
+                        b.setStyle(Qt.DiagCrossPattern)
+                    elif v.isBlocked():
+                        b.setColor(Qt.gray)
+                        b.setStyle(Qt.SolidPattern)
+            
+                    cells[y * cols + x].setBrush(b) 
+
+ 
+    def displayPathfinding(self):
+        for i in range(rows):
+            for j in range(cols):
+                pass
 
 class QGridView(QGraphicsView):
     def __init(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         
         self.view_menu = QMenu(self)
-
-# class GridCell(QFrame):
-#     __vertex = None 
-#     
-#     def __init__(self, parent = None, v = None):
-#         super().__init__(parent) 
-#         self.setFrameStyle(QFrame.Panel) 
-#         self.setAutoFillBackground(True) 
-#         self.__vertex = v
-# 
-#     def setVertex(self, v):
-#         self.__vertex = v
-# 
-#     def paintEvent(self, event):
-#         v = self.__vertex
-#         palette = self.palette()
-#         painter = QPainter()   
-# 
-#         painter.begin(self)
-# 
-#         if v != None:
-#             if v.isUnblocked():
-#                 palette.setColor(self.backgroundRole(), Qt.yellow)
-#         else:
-#             palette.setColor(self.backgroundRole(), Qt.black)
-# 
-#         painter.end()
-# 
-#         self.setPalette(palette)
-#         super().paintEvent(event)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
