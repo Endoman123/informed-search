@@ -134,9 +134,7 @@ def initTerrain(rows = 120, cols = 160):
             y = random.randrange(rows)
         
         while True:
-            print(cur_state) 
             if cur_state == 0: # walk
-                print(f"{x}, {y}")
                 t[y][x].markHighway()
                 cur_highway += (t[y][x],)
                  
@@ -188,16 +186,17 @@ def initTerrain(rows = 120, cols = 160):
                 highways += (cur_highway,)
                 break
 
-    # Generate "walls"       
+    print(highways)
+
+    # Generate "walls"
     for _ in range(int(size * 0.2)):
-        v = None 
-        while True:
-            v = t[random.randint(0, rows - 1)][random.randint(0, cols - 1)]
-            if not v.isHighway():
+        while True: 
+            v = t[random.randrange(rows)][random.randrange(cols)]
+       
+            if not v.isHighway() and not v.isBlocked():
+                v.markBlocked() 
                 break
 
-        v.markBlocked() 
-    
     for i in range(rows + 2):
         for j in range(cols + 2):
             ret[i][j].coordinates = (i, j)
@@ -233,13 +232,12 @@ def initGridworld(rows = 120, cols = 160):
     terrain = initTerrain(rows, cols)
     
     while True:
-        start = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
-        goal = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
+        start = [random.randrange(cols) + 1, random.randrange(rows) + 1]
+        goal = [random.randrange(cols) + 1, random.randrange(rows) + 1]
         
         if (
             sum([(a - b) ** 2 for a, b in zip(start, goal)]) >= 10000 
             and not terrain[start[1]][start[0]].isBlocked() 
             and not terrain[goal[1]][goal[0]].isBlocked()
         ):
-            print(f"{start}, {goal}") 
             break
