@@ -78,13 +78,17 @@ class QGridScene(QGraphicsScene):
         self.setSceneRect(0, 0, width, height)
         self.setItemIndexMethod(QGraphicsScene.NoIndex)
 
-        self.__start = QGraphicsEllipseItem(1, 1, self.__WIDTH - 2, self.__HEIGHT - 2)
-        self.__goal = QGraphicsEllipseItem(1, 1, self.__WIDTH - 2, self.__HEIGHT - 2)  
+        self.__start = QGraphicsRectItem(0, 0, self.__WIDTH, self.__HEIGHT)
+        self.__goal = QGraphicsRectItem(0, 0, self.__WIDTH, self.__HEIGHT)  
 
-        self.__start.setPen(QPen(Qt.NoPen))
-        self.__start.setBrush(QBrush(Qt.green))
-        self.__goal.setPen(QPen(Qt.NoPen))
-        self.__goal.setBrush(QBrush(Qt.red))
+        p_start = QPen(Qt.green)
+        p_end = QPen(Qt.red)
+        p_start.setWidth(2)
+        p_end.setWidth(2)
+        self.__start.setPen(p_start)
+        self.__start.setBrush(QBrush(Qt.NoBrush))
+        self.__goal.setPen(p_end)
+        self.__goal.setBrush(QBrush(Qt.NoBrush))
 
         self.__start.setVisible(False)
         self.__goal.setVisible(False)
@@ -114,6 +118,9 @@ class QGridScene(QGraphicsScene):
         self.__start.setVisible(True)
         self.__goal.setVisible(True)
 
+        for c in self.__highways.childItems():
+            self.removeItem(c)
+
         if gridworld.terrain: 
             cells = self.__cells.childItems() 
             for y in range(rows):
@@ -129,6 +136,7 @@ class QGridScene(QGraphicsScene):
                         b.setStyle(Qt.SolidPattern)
             
                     cells[y * cols + x].setBrush(b)
+                    cells[y * cols + x].setToolTip(repr(v))
 
                     if v.isHighway():
                         v_n = gridworld.terrain[y][x + 1]
@@ -137,7 +145,8 @@ class QGridScene(QGraphicsScene):
                         v_e = gridworld.terrain[y + 1][x + 2]
 
                         p_hw = QPen(Qt.blue)
-                            
+                        p_hw.setWidth(2)
+
                         xc = x * self.__WIDTH + 0.5 * self.__WIDTH
                         yc = y * self.__HEIGHT + 0.5 * self.__HEIGHT
                         
