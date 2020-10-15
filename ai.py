@@ -59,10 +59,7 @@ def getHValManhattanDistanceHex (x, y, goal):
     end_x, end_y = goal.coordinates
     dx = end_x - x
     dy = end_y - y
-    if ((dx > 0 and dy > 0) or (dx < 0 and dy < 0)):
-        h = abs(dx + dy)
-    else:
-        h = max(abs(dx), abs(dy))
+    h = abs(dx + dy) / 2
     return h  
     
 def getHValCustom (x, y, goal, start):
