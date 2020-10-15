@@ -226,14 +226,14 @@ def writeGridworld(path):
 def loadGridworld(path):
     global terrain, start, goal
     with open(path) as f:
-        start = [int(x) for x in f.readline().split(' ')]
-        end = [int(x) for x in f.readline().split(' ')]
+        start = tuple(int(x) for x in f.readline().split(' '))
+        end = tuple(int(x) for x in f.readline().split(' '))
 
         for _ in range(8):
-            c_hardregions.append([int(x) for x in f.readline().split(' ')])
+            c_hardregions += (tuple(int(x) for x in f.readline().split(' ')),)
 
         for line in f:
-            terrain.append([Vertex(x) for x in line])
+            terrain += [[Vertex(x) for x in line], ]
 
 
 def initGridworld(rows = 120, cols = 160):
