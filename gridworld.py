@@ -1,15 +1,14 @@
 import random
 import math
 import os
-import ai
 
 random.seed()
 
-start = [-1, -1]
-goal = [-1, -1]
+start = (-1, -1)
+goal = (-1, -1)
 terrain = []
 
-c_hardregions = []
+c_hardregions = ()
 
 # Vertex represents one cell in the terrain
 # As per the spec in the assignment, terrain is marked with a character 
@@ -18,7 +17,10 @@ c_hardregions = []
 # - 2: hard to traverse
 # - a: unblocked highway
 # - b: hard to traverse highway
-# Helper methods are provided to make getting info easier, as well as highway marking
+# Helper methods are provided to make getting info easier, 
+# as well as highway marking
+
+
 class Vertex:
     __code = '1'
     f = -1
@@ -48,14 +50,12 @@ class Vertex:
             self.__code = 'a'
         elif self.__code == '2':
             self.__code = 'b'
-        else:
-            print("Cannot set vertex to highway")
-    
+
     def unmarkHighway(self):
         if self.__code == 'a':
             self.__code = '1'
         elif self.__code == 'b':
-            self.__code = '2'  
+            self.__code = '2' 
 
     def markUnblocked(self):
         self.__code = '1'
@@ -76,7 +76,7 @@ class Vertex:
 # - Create 4 highways
 # - Select 20% of the total number of cells to be blocked cells
 # For more information, see section 2 of assignment.pdf
-def init_terrain(rows = 120, cols = 160):
+def initTerrain(rows = 120, cols = 160):
     # Save total number of cells for later use
     size = rows * cols
     
@@ -97,13 +97,13 @@ def init_terrain(rows = 120, cols = 160):
         x = random.randint(0, cols - 1)    
         y = random.randint(0, rows - 1)
   
-        c_hardregions.append([x, y])
+        c_hardregions += (x, y)
   
-        t_slice = t[y - 15:y + 15][x - 15:x + 15]  
+        t_slice = [t[y][x - 15:x + 15] for y in range(max(y - 15, 0), min(y + 15, rows))] 
         
         for row in t_slice:
             for v in row:
-                random.choice([v.markBlocked, v.markUnblocked])()
+                random.choice([v.markHardToTraverse, v.markUnblocked])()
     
     # Create "highways"
     # NOTE: Assume after 10 tries that highways cannot be generated given the current config
@@ -139,6 +139,10 @@ def init_terrain(rows = 120, cols = 160):
             
             while not end: 
                 for _ in range(20):
+                    if x < 0 or x >= cols or y < 0 or y >= rows or t[y][x].isHighway():
+                        end = True 
+                        break
+
                     list_v.append(t[y][x])
                     
                     if c_dir == 0:
@@ -150,15 +154,11 @@ def init_terrain(rows = 120, cols = 160):
                     else:
                         c_dir = 3
                         x += 1
-
-                    if x < 0 or x >= cols or y < 0 or y >= rows or t[y][x].isHighway():
-                        end = True 
-                        break
-
+                    
                 if not end:
                     c_dir = (c_dir + random.choice([0, 0, 0, 1, 3])) % 4
 
-            if len(list_v) >= 100 and not list_v[len(list_v) - 1].isHighway(): 
+            if len(list_v) >= 100 and not list_v.pop().isHighway(): 
                 for v in list_v:
                     v.markHighway() 
                 success = True
@@ -174,7 +174,7 @@ def init_terrain(rows = 120, cols = 160):
                             v.unmarkHighway()         
 
     # Generate "walls"       
-    for _ in range(size):
+    for _ in range(int(size * 0.2)):
         v = None 
         while True:
             v = t[random.randint(0, rows - 1)][random.randint(0, cols - 1)]
@@ -182,9 +182,11 @@ def init_terrain(rows = 120, cols = 160):
                 break
 
         v.markBlocked() 
+    
     for i in range(rows + 2):
         for j in range(cols + 2):
             ret[i][j].coordinates = (i, j)
+
     return ret 
 
 def writeGridworld(path): 
@@ -211,13 +213,13 @@ def loadGridworld(path):
             terrain.append([Vertex(x) for x in line])
 
 
-def initGridworld(rows = 160, cols = 160):
+def initGridworld(rows = 120, cols = 160):
     global terrain, start, goal 
-    terrain = init_terrain(rows, cols)
+    terrain = initTerrain(rows, cols)
     
     while True:
         start = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
         goal = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
         
-        if math.pow(goal[0] - start[0], 2) + math.pow(goal[1] - start[1], 2) >= 10000:
+        if math.pow(goal[0] - start[0], 2) + math.pow(goal[1] - start[1], 2) >= 10000 and not terrain[start[1] + 1][start[0] + 1].isBlocked() and not terrain[goal[1] + 1][goal[0] + 1].isBlocked():
             break
