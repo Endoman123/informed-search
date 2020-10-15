@@ -94,8 +94,8 @@ def initTerrain(rows = 120, cols = 160):
     for _ in range(8):
         global c_hardregions
 
-        x = random.randint(0, cols - 1)    
-        y = random.randint(0, rows - 1)
+        x = random.randrange(cols - 1)    
+        y = random.randrange(rows - 1)
   
         c_hardregions += (x, y)
   
@@ -117,61 +117,76 @@ def initTerrain(rows = 120, cols = 160):
     # 7 - If 20 tiles have just been pushed to list, 60% chance of choosing a new direction, 20% of each perpendicular direction
     # 8 - Check number of tiles and stopping point. If both are valid, mark
     #     as a success, commit all as highway, and move on to the next one 
-    n_highways = 0 
-    while n_highways < 4:
+    highways = () 
+    while len(highways) < 4:
         x = -1
         y = -1
-        success = False 
-        list_v = []        
+        cur_highway = ()
+        cur_state = 0
         n_tries = 10
+        dir = random.randrange(4)
+
+        if bool(random.getrandbits(1)):
+            x = random.randrange(cols)
+            y = random.choice([0, rows - 1])
+        else:
+            x = random.choice([0, cols - 1])
+            y = random.randrange(rows)
         
-        while not success:
-            # Choose side pair 
-            if bool(random.getrandbits(1)): 
-                x = random.randint(0, cols - 1)
-                y = random.choice([0, rows - 1])
-            else: 
-                x = random.choice([0, cols - 1]) 
-                y = random.randint(0, rows - 1)
+        while True:
+            print(cur_state) 
+            if cur_state == 0: # walk
+                print(f"{x}, {y}")
+                t[y][x].markHighway()
+                cur_highway += (t[y][x],)
+                 
+                if len(cur_highway) % 20 == 0: # Change direction in 20-cell segments
+                    dir += random.choice([0, 0, 0, 1, 3])
+                    dir %= 4
+                    n_cells = 0
 
-            end = False 
-            c_dir = random.randint(0, 3)
-            
-            while not end: 
-                for _ in range(20):
-                    if x < 0 or x >= cols or y < 0 or y >= rows or t[y][x].isHighway():
-                        end = True 
-                        break
+                if dir == 0: # North
+                    y -= 1
+                elif dir == 2: # South
+                    y += 1
+                elif dir == 1: # West
+                    x -= 1
+                else: # Default to East
+                    dir = 3
+                    x += 1
+              
+                # Check if we end this highway builder
+                if not 0 <= x < cols or not 0 <= y < rows or t[y][x].isHighway():
+                    cur_state = 1
 
-                    list_v.append(t[y][x])
-                    
-                    if c_dir == 0:
-                        y -= 1
-                    elif c_dir == 1:
-                        x -= 1
-                    elif c_dir == 2:
-                        y += 1
-                    else:
-                        c_dir = 3
-                        x += 1
-                    
-                if not end:
-                    c_dir = (c_dir + random.choice([0, 0, 0, 1, 3])) % 4
+            elif cur_state == 1: # Check if highway is valid
+                if (
+                    len(cur_highway) < 100
+                    or (
+                        x in range(cols)
+                        and y in range(rows)
+                        and t[y][x].isHighway()
+                    )
+                ):
+                    cur_state = 2
+                else:
+                    cur_state = 3
 
-            if len(list_v) >= 100 and not list_v.pop().isHighway(): 
-                for v in list_v:
-                    v.markHighway() 
-                success = True
-                n_highways += 1
-            else:
-                n_tries -= 1
-                
+            elif cur_state == 2: # Highway is invalid, restart
+                n_tries -= 1 
                 if n_tries == 0:
-                    n_highways = 0
+                    for hw in highways:
+                        for v in hw:
+                            v.unmarkHighway()
 
-                    for row in t:
-                        for v in row:
-                            v.unmarkHighway()         
+                else: 
+                    for v in cur_highway:
+                        v.unmarkHighway()
+                break
+
+            elif cur_state == 3: # Success, add highway to list
+                highways += (cur_highway,)
+                break
 
     # Generate "walls"       
     for _ in range(int(size * 0.2)):
@@ -221,5 +236,10 @@ def initGridworld(rows = 120, cols = 160):
         start = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
         goal = [random.randint(0, cols) + 1, random.randint(0, rows) + 1]
         
-        if math.pow(goal[0] - start[0], 2) + math.pow(goal[1] - start[1], 2) >= 10000 and not terrain[start[1] + 1][start[0] + 1].isBlocked() and not terrain[goal[1] + 1][goal[0] + 1].isBlocked():
+        if (
+            sum([(a - b) ** 2 for a, b in zip(start, goal)]) >= 10000 
+            and not terrain[start[1]][start[0]].isBlocked() 
+            and not terrain[goal[1]][goal[0]].isBlocked()
+        ):
+            print(f"{start}, {goal}") 
             break
