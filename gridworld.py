@@ -8,7 +8,7 @@ start = (-1, -1)
 goal = (-1, -1)
 terrain = []
 
-c_hardregions = ()
+c_hardregions = () 
 
 # Vertex represents one cell in the terrain
 # As per the spec in the assignment, terrain is marked with a character 
@@ -97,7 +97,7 @@ def initTerrain(rows = 120, cols = 160):
         x = random.randrange(cols - 1)    
         y = random.randrange(rows - 1)
   
-        c_hardregions += (x, y)
+        c_hardregions += ((x, y),)
   
         t_slice = [t[y][x - 15:x + 15] for y in range(max(y - 15, 0), min(y + 15, rows))] 
         
@@ -126,16 +126,21 @@ def initTerrain(rows = 120, cols = 160):
         n_tries = 10
         dir = random.randrange(4)
 
-        if bool(random.getrandbits(1)):
-            x = random.randrange(cols)
-            y = random.choice([0, rows - 1])
-        else:
-            x = random.choice([0, cols - 1])
-            y = random.randrange(rows)
+        while True:
+            if bool(random.getrandbits(1)):
+                x = random.randrange(cols)
+                y = random.choice([0, rows - 1])
+            else:
+                x = random.choice([0, cols - 1])
+                y = random.randrange(rows)
         
+            if not t[y][x].isHighway():
+                break
+
         while True:
             if cur_state == 0: # walk
                 t[y][x].markHighway()
+
                 cur_highway += (t[y][x],)
                  
                 if len(cur_highway) % 20 == 0: # Change direction in 20-cell segments
@@ -177,16 +182,20 @@ def initTerrain(rows = 120, cols = 160):
                         for v in hw:
                             v.unmarkHighway()
 
+                    highways = ()
                 else: 
                     for v in cur_highway:
                         v.unmarkHighway()
+
+                cur_highway = ()
                 break
 
             elif cur_state == 3: # Success, add highway to list
+                for v in cur_highway:
+                    v.markHighway()
+
                 highways += (cur_highway,)
                 break
-
-    print(highways)
 
     # Generate "walls"
     for _ in range(int(size * 0.2)):
