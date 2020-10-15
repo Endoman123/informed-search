@@ -36,9 +36,14 @@ def getHValDiagonalDistance (x, y, goal):
     h = max(abs(x - end_x), abs(y - end_y))
     return h
 
-def getHValEuclideanDistance (x, y, goal):
+def getHValManhattanDistanceHex (x, y, goal):
     end_x, end_y = goal.coordinates
-    h = sqrt(pow((x - end_x), 2) + pow((y - end_y), 2))
+    dx = end_x - x
+    dy = end_y - y
+    if ((dx > 0 and dy > 0) or (dx < 0 and dy < 0)):
+        h = abs(dx + dy)
+    else:
+        h = max(abs(dx), abs(dy))
     return h  
     
 def getHValCustom (x, y, goal, start):
