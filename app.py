@@ -112,8 +112,8 @@ class QGridScene(QGraphicsScene):
         self.__highways = highways
 
     def paintGridworld(self):
-        self.__start.setPos(gridworld.start[0] * self.__WIDTH, gridworld.start[1] * self.__HEIGHT)
-        self.__goal.setPos(gridworld.goal[0] * self.__WIDTH, gridworld.goal[1]* self.__HEIGHT)
+        self.__start.setPos((gridworld.start[0] - 1) * self.__WIDTH, (gridworld.start[1] - 1) * self.__HEIGHT)
+        self.__goal.setPos((gridworld.goal[0] - 1) * self.__WIDTH, (gridworld.goal[1] - 1) * self.__HEIGHT)
 
         self.__start.setVisible(True)
         self.__goal.setVisible(True)
