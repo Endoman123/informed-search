@@ -79,9 +79,9 @@ class AppWindow(QMainWindow):
         view = self.__gridView
         t = event.text()
         if t == "Zoom +":
-            view.zoom(10)
+            view.zoom(1.1)
         elif t == "Zoom -":
-            view.zoom(0.1)
+            view.zoom(0.9)
         else:
             view.resetZoom()
 
