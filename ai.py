@@ -76,6 +76,8 @@ def getHValManhattanDistance(x, y, goal):
     h = abs(x - end_x) + abs(y - end_y)
     return h
 
+def isAdmissible (hCur, hParent, cost):
+    return hParent <= cost + hCur
 
 def a_sequential(map, start, end):
     print(start.coordinates)
@@ -109,31 +111,31 @@ def a_sequential(map, start, end):
                     return
                 else:
                     if isValid(x - 1, y):
-                        expand_vertex_regular(x, y, x - 1, y, map, end, closed, queues[i], i)
+                        expand_vertex_regular(x, y, x - 1, y, map, end, closed, queues[i], i, start)
                         # South
                     if isValid(x + 1, y):
                         # Check if it's the destination
-                        expand_vertex_regular(x, y, x + 1, y, map, end, closed, queues[i], i)
+                        expand_vertex_regular(x, y, x + 1, y, map, end, closed, queues[i], i, start)
                         # East
                     if isValid(x, y + 1):
                         # Check if it's the destination
-                        expand_vertex_regular(x, y, x, y + 1, map, end, closed, queues[i], i)
+                        expand_vertex_regular(x, y, x, y + 1, map, end, closed, queues[i], i, start)
                         # West
                     if isValid(x, y - 1):
-                        expand_vertex_regular(x, y, x, y - 1, map, end, closed, queues[i], i)
+                        expand_vertex_regular(x, y, x, y - 1, map, end, closed, queues[i], i, start)
                     # North-East
                     if isValid(x - 1, y + 1):
-                        expand_vertex_diagonal(x, y, x - 1, y + 1, map, end, closed, queues[i], i)
+                        expand_vertex_diagonal(x, y, x - 1, y + 1, map, end, closed, queues[i], i, start)
                         # North West
                     if isValid(x - 1, y - 1):
-                        expand_vertex_diagonal(x, y, x - 1, y - 1, map, end, closed, queues[i], i)
+                        expand_vertex_diagonal(x, y, x - 1, y - 1, map, end, closed, queues[i], i, start)
                         # South-East
                     if isValid(x + 1, y + 1):
-                        expand_vertex_diagonal(x, y, x + 1, y + 1, map, end, closed, queues[i], i)
+                        expand_vertex_diagonal(x, y, x + 1, y + 1, map, end, closed, queues[i], i, start)
                         # South-West
                     if isValid(x + 1, y - 1):
                         # Check if it's the destination
-                        expand_vertex_diagonal(x, y, x + 1, y - 1, map, end, closed, queues[i], i)
+                        expand_vertex_diagonal(x, y, x + 1, y - 1, map, end, closed, queues[i], i, start)
             else:
                 if isDestination(main_x, main_y, end):
                     print("Destination Found")
@@ -141,36 +143,36 @@ def a_sequential(map, start, end):
                     return
                 else:
                     if isValid(x - 1, y):
-                        expand_vertex_regular(x, y, x - 1, y, map, end, closed, queues[0], 0)
+                        expand_vertex_regular(x, y, x - 1, y, map, end, closed, queues[0], 0, start)
                         # South
                     if isValid(x + 1, y):
                         # Check if it's the destination
-                        expand_vertex_regular(x, y, x + 1, y, map, end, closed, queues[0], 0)
+                        expand_vertex_regular(x, y, x + 1, y, map, end, closed, queues[0], 0, start)
                         # East
                     if isValid(x, y + 1):
                         # Check if it's the destination
-                        expand_vertex_regular(x, y, x, y + 1, map, end, closed, queues[0], 0)
+                        expand_vertex_regular(x, y, x, y + 1, map, end, closed, queues[0], 0, start)
                         # West
                     if isValid(x, y - 1):
                         # Check if it's the destination
-                        expand_vertex_regular(x, y, x, y - 1, map, end, closed, queues[0], 0)
+                        expand_vertex_regular(x, y, x, y - 1, map, end, closed, queues[0], 0, start)
                     # South-West
                     if isValid(x + 1, y - 1):
-                        expand_vertex_diagonal(x, y, x + 1, y - 1, map, end, closed, queues[0], 0)
+                        expand_vertex_diagonal(x, y, x + 1, y - 1, map, end, closed, queues[0], 0, start)
 
                         # North-East
                     if isValid(x - 1, y + 1):
-                        expand_vertex_diagonal(x, y, x - 1, y + 1, map, end, closed, queues[0], 0)
+                        expand_vertex_diagonal(x, y, x - 1, y + 1, map, end, closed, queues[0], 0, start)
                         # North West
                     if isValid(x - 1, y - 1):
-                        expand_vertex_diagonal(x, y, x - 1, y - 1, map, end, closed, queues[0], 0)
+                        expand_vertex_diagonal(x, y, x - 1, y - 1, map, end, closed, queues[0], 0, start)
 
                     # South-East
                     if isValid(x + 1, y + 1):
-                        expand_vertex_diagonal(x, y, x + 1, y + 1, map, end, closed, queues[0], 0)
+                        expand_vertex_diagonal(x, y, x + 1, y + 1, map, end, closed, queues[0], 0, start)
 
 
-def expand_vertex_regular(x, y, x_new, y_new, map, end, closed, queue, i):
+def expand_vertex_regular(x, y, x_new, y_new, map, end, closed, queue, i, start):
     if isDestination(x_new, y_new, end):
         map[x_new][y_new].parent_x = x
         map[x_new][y_new].parent_y = y
@@ -178,9 +180,11 @@ def expand_vertex_regular(x, y, x_new, y_new, map, end, closed, queue, i):
         trace(map, end)
         return
     elif not closed[x_new][y_new] & map[x_new][y_new].isBlocked() is False:
+        hOld = getHValue(x, y, i, end, start)
         gNew = get_cost_regular(x, y, x_new, y_new, map)
-        hNew = getHValue(x_new, y_new, i, end)
+        hNew = getHValue(x_new, y_new, i, end, start)
         fNew = gNew + hNew
+        admissible = isAdmissible(hNew, hOld, get_cost_regular(x, y, x_new, y_new, map))
         if map[x_new][y_new].f > fNew:
             queue.put((fNew, (x_new, y_new)))
             update_vertex(x, y, x_new, y_new, map, fNew, gNew, hNew)
@@ -218,7 +222,7 @@ def get_cost_regular(x, y, x_new, y_new, map):
     return cost
 
 
-def expand_vertex_diagonal(x, y, x_new, y_new, map, end, closed, queue, i):
+def expand_vertex_diagonal(x, y, x_new, y_new, map, end, closed, queue, i, start):
     if isDestination(x_new, y_new, end):
         map[x_new][y_new].parent_x = x
         map[x_new][y_new].parent_y = y
@@ -226,9 +230,11 @@ def expand_vertex_diagonal(x, y, x_new, y_new, map, end, closed, queue, i):
         trace(map, end)
         return
     elif closed[x_new][y_new] is False and map[x_new][y_new].isUnblocked() is False:
+        hOld = getHValue(x, y, i, end, start)
         gNew = get_cost_diagonal(x, y, x_new, y_new, map)
-        hNew = getHValue(x_new, y_new, i, end)
+        hNew = getHValue(x_new, y_new, i, end, start)
         fNew = gNew + hNew
+        admissible = isAdmissible(hNew, hOld, get_cost_diagonal(x, y, x_new, y_new, map))
         if map[x_new][y_new].f > fNew:
             queue.put((fNew, (x_new, y_new)))
             update_vertex(x, y, x_new, y_new, map, fNew, gNew, hNew)
