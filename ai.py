@@ -54,21 +54,16 @@ def getHValDiagonalDistance(x, y, goal):
     h = max(abs(x - end_x), abs(y - end_y))
     return h
 
-<<<<<<< Updated upstream
+
 def getHValManhattanDistanceHex (x, y, goal):
     end_x, end_y = goal.coordinates
     dx = end_x - x
     dy = end_y - y
-    if ((dx > 0 and dy > 0) or (dx < 0 and dy < 0)):
-        h = abs(dx + dy)
-    else:
-        h = max(abs(dx), abs(dy))
+    h = abs(dx + dy) / 2
     return h  
     
-def getHValCustom (x, y, goal, start):
-=======
+
 def getHValCustom(x, y, goal, start):
->>>>>>> Stashed changes
     end_x, end_y = goal.coordinates
     begin_x, begin_y = start.coordinates
     stDistance = sqrt(pow(end_x - begin_x, 2) + pow(end_y - begin_y, 2))
