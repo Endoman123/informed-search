@@ -262,7 +262,7 @@ def get_cost_diagonal(x, y, new_x, new_y, map):
     return cost
 
 
-def expand_vertex_regular_a_star(x, y, x_new, y_new, map, end, closed, openList):
+def expand_vertex_regular_a_star(x, y, x_new, y_new, map, end, closed, openList, start):
     if isDestination(x_new, y_new, end):
         map[x_new][y_new].parent_x = x
         map[x_new][y_new].parent_y = y
@@ -270,15 +270,17 @@ def expand_vertex_regular_a_star(x, y, x_new, y_new, map, end, closed, openList)
         trace(map, end)
         return
     elif not closed[x_new][y_new] & map[x_new][y_new].isBlocked() is False:
+        hOld = getHValue(x, y, 0, end, start)
         gNew = get_cost_regular(x, y, x_new, y_new, map)
-        hNew = getHValue(x_new, y_new, 0, end)
+        hNew = getHValue(x_new, y_new, 0, end, start)
         fNew = gNew + hNew
+        admissible = isAdmissible(hNew, hOld, get_cost_regular(x, y, x_new, y_new, map))
         if map[x_new][y_new].f > fNew:
             openList.append((fNew, (x_new, y_new)))
             update_vertex(x, y, x_new, y_new, map, fNew, gNew, hNew)
 
 
-def expand_vertex_diagonal_a_star(x, y, x_new, y_new, map, end, closed, openList):
+def expand_vertex_diagonal_a_star(x, y, x_new, y_new, map, end, closed, openList, start):
     if isDestination(x_new, y_new, end):
         map[x_new][y_new].parent_x = x
         map[x_new][y_new].parent_y = y
@@ -286,15 +288,17 @@ def expand_vertex_diagonal_a_star(x, y, x_new, y_new, map, end, closed, openList
         trace(map, end)
         return
     elif closed[x_new][y_new] is False and map[x_new][y_new].isUnblocked() is False:
+        hOld = getHValue(x, y, 0, end, start)
         gNew = get_cost_diagonal(x, y, x_new, y_new, map)
         hNew = getHValue(x_new, y_new, 0, end)
         fNew = gNew + hNew
+        admissible = isAdmissible(hNew, hOld, get_cost_diagonal(x, y, x_new, y_new, map))
         if map[x_new][y_new].f > fNew:
             openList.append((fNew, (x_new, y_new)))
             update_vertex(x, y, x_new, y_new, map, fNew, gNew, hNew)
 
 
-def expand_vertex_diagonal_a_star_weighted(x, y, x_new, y_new, map, end, closed, openList, w):
+def expand_vertex_diagonal_a_star_weighted(x, y, x_new, y_new, map, end, closed, openList, w, start):
     if isDestination(x_new, y_new, end):
         map[x_new][y_new].parent_x = x
         map[x_new][y_new].parent_y = y
@@ -302,16 +306,18 @@ def expand_vertex_diagonal_a_star_weighted(x, y, x_new, y_new, map, end, closed,
         trace(map, end)
         return
     elif closed[x_new][y_new] is False and map[x_new][y_new].isUnblocked() is False:
+        hOld = (getHValue(x, y, 0, end, start)) * w
         gNew = get_cost_diagonal(x, y, x_new, y_new, map)
-        hNew = getHValue(x_new, y_new, 0, end)
+        hNew = getHValue(x_new, y_new, 0, end, start)
         hNew *= w
         fNew = gNew + hNew
+        admissible = isAdmissible(hNew, hOld, get_cost_diagonal(x, y, x_new, y_new, map))
         if map[x_new][y_new].f > fNew:
             openList.append((fNew, (x_new, y_new)))
             update_vertex(x, y, x_new, y_new, map, fNew, gNew, hNew)
 
 
-def expand_vertex_regular_a_star_weighted(x, y, x_new, y_new, map, end, closed, openList, w):
+def expand_vertex_regular_a_star_weighted(x, y, x_new, y_new, map, end, closed, openList, w, start):
     if isDestination(x_new, y_new, end):
         map[x_new][y_new].parent_x = x
         map[x_new][y_new].parent_y = y
@@ -319,10 +325,12 @@ def expand_vertex_regular_a_star_weighted(x, y, x_new, y_new, map, end, closed, 
         trace(map, end)
         return
     elif not closed[x_new][y_new] & map[x_new][y_new].isBlocked() is False:
+        hOld = (getHValue(x, y, 0, end, start)) * w
         gNew = get_cost_regular(x, y, x_new, y_new, map)
         hNew = getHValue(x_new, y_new, 0, end)
         hNew *= w
         fNew = gNew + hNew
+        admissible = isAdmissible(hNew, hOld, get_cost_regular(x, y, x_new, y_new, map))
         if map[x_new][y_new].f > fNew:
             openList.append((fNew, (x_new, y_new)))
             update_vertex(x, y, x_new, y_new, map, fNew, gNew, hNew)
@@ -355,9 +363,9 @@ def a_star(map, start, end):
                     # Check if goal cell
                     if isValid(j, i):
                         if x == j or y == i:
-                            expand_vertex_regular_a_star(x, y, j, i, map, end, closed, openList)
+                            expand_vertex_regular_a_star(x, y, j, i, map, end, closed, openList, start)
                         else:
-                            expand_vertex_diagonal_a_star(x, y, x - 1, y + 1, map, end, closed, openList)
+                            expand_vertex_diagonal_a_star(x, y, x - 1, y + 1, map, end, closed, openList, start)
     
     print("Failed to find a valid path")
     return
@@ -385,27 +393,27 @@ def a_star_weighted(map, start, end, w):
         gNew = 0
         # North
         if isValid(x - 1, y):
-            expand_vertex_regular_a_star_weighted(x, y, x - 1, y, map, end, closed, openList, w)
+            expand_vertex_regular_a_star_weighted(x, y, x - 1, y, map, end, closed, openList, w, start)
         # South
         if isValid(x + 1, y):
-            expand_vertex_regular_a_star_weighted(x, y, x + 1, y, map, end, closed, openList, w)
+            expand_vertex_regular_a_star_weighted(x, y, x + 1, y, map, end, closed, openList, w, start)
         # East
         if isValid(x, y + 1):
-            expand_vertex_regular_a_star_weighted(x, y, x, y + 1, map, end, closed, openList, w)
+            expand_vertex_regular_a_star_weighted(x, y, x, y + 1, map, end, closed, openList, w, start)
         # West
         if isValid(x, y - 1):
-            expand_vertex_regular_a_star_weighted(x, y, x, y - 1, map, end, closed, openList, w)
+            expand_vertex_regular_a_star_weighted(x, y, x, y - 1, map, end, closed, openList, w, start)
         # North-East
         if isValid(x - 1, y + 1):
-            expand_vertex_diagonal_a_star_weighted(x, y, x - 1, y + 1, map, end, closed, openList, w)
+            expand_vertex_diagonal_a_star_weighted(x, y, x - 1, y + 1, map, end, closed, openList, w, start)
         # South-East
         if isValid(x + 1, y + 1):
-            expand_vertex_diagonal_a_star_weighted(x, y, x + 1, y + 1, map, end, closed, openList, w)
+            expand_vertex_diagonal_a_star_weighted(x, y, x + 1, y + 1, map, end, closed, openList, w, start)
         # South-West
         if isValid(x + 1, y - 1):
-            expand_vertex_diagonal_a_star_weighted(x, y, x + 1, y - 1, map, end, closed, openList, w)
+            expand_vertex_diagonal_a_star_weighted(x, y, x + 1, y - 1, map, end, closed, openList, w, start)
         if isValid(x - 1, y - 1):
-            expand_vertex_regular_a_star_weighted(x, y, x - 1, y - 1, map, end, closed, openList, w)
+            expand_vertex_regular_a_star_weighted(x, y, x - 1, y - 1, map, end, closed, openList, w, start)
     print("Failed to find a valid path")
     return
 
