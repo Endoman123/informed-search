@@ -17,12 +17,14 @@ class AppWindow(QMainWindow):
         super().__init__(parent)
         
         toolbar = self.buildGridToolbar()
+        ai = self.buildAIToolbar()
         menu = self.buildMenubar()
         grid = QGridScene() 
         gridView = QGridView(grid)
 
         self.setMenuBar(menu) 
-        self.addToolBar(toolbar) 
+        self.addToolBar(toolbar)
+        self.addToolBar(ai)
         self.setCentralWidget(gridView)         
         self.setWindowTitle("Gridworld (Informed Search)") 
 
@@ -36,6 +38,15 @@ class AppWindow(QMainWindow):
         self.__gridView = gridView
         self.__dialog = dialog
         self.__menu = menu
+
+    def buildAIToolbar(self):
+        ret = QToolBar("AI", self)
+    
+        ret.addAction("A*") 
+        
+        ret.actionTriggered[QAction].connect(self.runAI)
+
+        return ret
 
     def buildGridToolbar(self):
         ret = QToolBar("Grid View", self)
@@ -74,6 +85,17 @@ class AppWindow(QMainWindow):
         ret.triggered[QAction].connect(self.doFileAction)
 
         return ret
+    
+    def zoom(self, event):
+        map = gridworld.terrain
+        start = gridworld.start
+        goal = gridworld.goal
+
+        t = event.text()
+        if t == "A*":
+            pass #TODO: Replace pass with A* call
+        else:
+            pass
 
     def zoom(self, event):
         view = self.__gridView
