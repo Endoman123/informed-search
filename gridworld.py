@@ -20,7 +20,6 @@ c_hardregions = ()
 # Helper methods are provided to make getting info easier, 
 # as well as highway marking
 
-
 class Vertex:
     __code = '1'
     f = -1
@@ -212,7 +211,8 @@ def initTerrain(rows = 120, cols = 160):
 
     return ret 
 
-def writeGridworld(path): 
+def writeGridworld(path):
+    global terrain, start, goal, c_hardregions
     with open(path, 'w') as f:
         f.write(f"{start[0]} {start[1]}" + os.linesep)
         f.write(f"{goal[0]} {goal[1]}" + os.linesep)
@@ -224,17 +224,21 @@ def writeGridworld(path):
             f.write(''.join([repr(v) for v in row]) + os.linesep)     
 
 def loadGridworld(path):
-    global terrain, start, goal
+    global terrain, start, goal, c_hardregions
     with open(path) as f:
         start = tuple(int(x) for x in f.readline().split(' '))
-        end = tuple(int(x) for x in f.readline().split(' '))
+        goal = tuple(int(x) for x in f.readline().split(' '))
 
+        c_hardregions = ()
         for _ in range(8):
             c_hardregions += (tuple(int(x) for x in f.readline().split(' ')),)
 
+        terrain = []
         for line in f:
+            print(line)
             terrain += [[Vertex(x) for x in line], ]
 
+        print(terrain)
 
 def initGridworld(rows = 120, cols = 160):
     global terrain, start, goal 
