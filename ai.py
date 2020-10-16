@@ -338,34 +338,21 @@ def a_star(map, start, end):
     openList = []
     openList.append((0, (start.coordinates[0], start.coordinates[1])))
 
-    while len(openList) > 0:
+    while openList:
         (f, (x, y)) = openList.pop()
         closed[x][y] = True
         gNew = 0
-        # North
-        if isValid(x - 1, y):
-            # Check if it's the Goal Cell
-            expand_vertex_regular_a_star(x, y, x - 1, y, map, end, closed, openList)
-        # South
-        if isValid(x + 1, y):
-            expand_vertex_regular_a_star(x, y, x + 1, y, map, end, closed, openList)
-        # East
-        if isValid(x, y + 1):
-            expand_vertex_regular_a_star(x, y, x, y + 1, map, end, closed, openList)
-        # West
-        if isValid(x, y - 1):
-            expand_vertex_regular_a_star(x, y, x, y - 1, map, end, closed, openList)
-        # North-East
-        if isValid(x - 1, y + 1):
-            expand_vertex_diagonal_a_star(x, y, x - 1, y + 1, map, end, closed, openList)
-        # South-East
-        if isValid(x + 1, y + 1):
-            expand_vertex_diagonal(x, y, x + 1, y + 1, map, end, closed, openList)
-        # South-West
-        if isValid(x + 1, y - 1):
-            expand_vertex_diagonal_a_star(x, y, x + 1, y - 1, map, end, closed, openList)
-        if isValid(x - 1, y - 1):
-            expand_vertex_regular_a_star(x, y, x - 1, y - 1, map, end, closed, openList)
+
+        for i in range(min(0, y - 1), max(rows, y + 2)):
+            for j in range(min(0, x - 1), max(cols, x + 2)):
+                if i != x or j != x:
+                    # Check if goal cell
+                    if isValid(j, i):
+                        if x == j or y == i:
+                            expand_vertex_regular_a_star(x, y, j, i, map, end, closed, openList)
+                        else:
+                            expand_vertex_diagonal_a_star(x, y, x - 1, y + 1, map, end, closed, openList)
+    
     print("Failed to find a valid path")
     return
 
