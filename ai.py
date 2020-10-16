@@ -17,11 +17,11 @@ def h_pythagorean(v, goal):
 def cost(map, s, s_prime):
     v = map[s[1]][s[0]]
     v_prime = map[s_prime[1]][s_prime[0]]
-    ret = 9001 
+    ret = inf 
     
-    if v_prime.isBlocked() or v.isBlocked(): # You cannot transition between blocked cells
+    if v.isBlocked() or v_prime.isBlocked(): # You cannot transition between blocked cells
         return ret
-    
+   
     f_v = 1
     f_vp = 1
 
@@ -50,19 +50,28 @@ def a_star(map, start, goal, h = h_pythagorean):
     fringe = PriorityQueue()
     closed = [] 
     parent = {i: {j: None for j in range(cols)} for i in range(rows)}  
-   
+  
+    f = {i: {j: inf for j in range(cols)} for i in range(rows)}
     g = {i: {j: inf for j in range(cols)} for i in range(rows)}
+    h = {i: {j: h((j, i), goal) for j in range(cols)} for i in range(rows)}
+
+    f[start[1]][start[0]] = 0 + h[start[1]][start[0]]
     g[start[1]][start[0]] = 0 
-   
-    fringe.put((h(start, goal), start))
+  
+    fringe.put((f[start[1]][start[0]], start))
 
     while not fringe.empty():
         pop = fringe.get() 
        
         s = pop[1]
-        if all(a == b for a, b in zip(s, goal)):
-            print("finished")
-            return closed
+        
+        if all(a == b for a, b in zip(s, goal)): # End goal
+            ret = {'f': f, 'g': g, "h": h, 'map': [s]}
+            while parent[s[1]][s[0]] != None:
+                s = parent[s[1]][s[0]]
+                ret['map'].insert(0, s)
+           
+            return ret
 
         closed += [s]
 
@@ -77,13 +86,14 @@ def a_star(map, start, goal, h = h_pythagorean):
                 if s_p not in closed and g_temp < g[i][j]:
                     parent[i][j] = s
                     g[i][j] = g_temp
+                    f[i][j] = g[i][j] + h[i][j]
 
                     in_fringe = False
                     with fringe.mutex:
                         in_fringe = s_p in fringe.queue
 
                     if not in_fringe:
-                        fringe.put((g[i][j] + h(s_p, goal), s_p)) 
+                        fringe.put((f[i][j], s_p)) 
 
     print("failed") 
     return None

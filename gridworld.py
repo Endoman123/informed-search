@@ -245,8 +245,8 @@ def initGridworld(rows = 120, cols = 160):
     terrain = initTerrain(rows, cols)
     
     while True:
-        start = [random.randrange(cols) + 1, random.randrange(rows) + 1]
-        goal = [random.randrange(cols) + 1, random.randrange(rows) + 1]
+        start = (random.randrange(cols) + 1, random.randrange(rows) + 1)
+        goal = (random.randrange(cols) + 1, random.randrange(rows) + 1)
         
         if (
             sum([(a - b) ** 2 for a, b in zip(start, goal)]) >= 10000 
