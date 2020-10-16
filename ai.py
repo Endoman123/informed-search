@@ -11,8 +11,8 @@ class AIVertex:
         self.vertex = v
         self.coordinate = (x, y) 
 
-def h_pythagorean(v):
-    return 0
+def h_pythagorean(v, goal):
+    return sum((a - b) ** 2 for a, b in zip(goal, v))
 
 def cost(map, s, s_prime):
     v = map[s[1]][s[0]]
@@ -54,11 +54,13 @@ def a_star(map, start, goal, h = h_pythagorean):
     g = {i: {j: inf for j in range(cols)} for i in range(rows)}
     g[start[1]][start[0]] = 0 
    
-    fringe.put((h(start), start))
+    fringe.put((h(start, goal), start))
 
     while not fringe.empty():
-        s = fringe.get()[1]
-        if s == goal:
+        pop = fringe.get() 
+       
+        s = pop[1]
+        if all(a == b for a, b in zip(s, goal)):
             print("finished")
             return closed
 
@@ -66,23 +68,22 @@ def a_star(map, start, goal, h = h_pythagorean):
 
         for i in range(max(0, s[1] - 1), min(rows, s[1] + 2)):
             for j in range(max(0, s[0] - 1), min(cols, s[0] + 2)): 
-                if (j, i) == s:
+                s_p = (j, i) 
+                if s_p == s:
                     continue
 
-                s_p = (j, i) 
                 g_temp = g[s[1]][s[0]] + cost(map, s, s_p)
 
-                if g_temp < g[i][j]:
+                if s_p not in closed and g_temp < g[i][j]:
                     parent[i][j] = s
                     g[i][j] = g_temp
 
                     in_fringe = False
                     with fringe.mutex:
                         in_fringe = s_p in fringe.queue
-                        print(in_fringe)
 
                     if not in_fringe:
-                        fringe.put((g[i][j] + h(s_p), s_p)) 
+                        fringe.put((g[i][j] + h(s_p, goal), s_p)) 
 
-    print(closed)
+    print("failed") 
     return None
