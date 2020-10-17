@@ -46,7 +46,7 @@ def cost(map, s, s_prime):
 
 
 # A* pathfinding algorithm
-def a_star(map, start, goal, h=h_pythagorean):
+def a_star(map, start, goal, h=h_pythagorean, w = 0):
     print("You getting in here?")
     rows = len(map)
     cols = len(map[0])
@@ -58,8 +58,10 @@ def a_star(map, start, goal, h=h_pythagorean):
     f = {i: {j: inf for j in range(cols)} for i in range(rows)}
     g = {i: {j: inf for j in range(cols)} for i in range(rows)}
     h = {i: {j: h((j, i), goal) for j in range(cols)} for i in range(rows)}
-
-    f[start[1]][start[0]] = 0 + h[start[1]][start[0]]
+    if w != 0:
+        f[start[1]][start[0]] = 0 + w * h[start[1]][start[0]]
+    else :
+        f[start[1]][start[0]] = 0 + h[start[1]][start[0]]
     g[start[1]][start[0]] = 0
 
     fringe.put((f[start[1]][start[0]], start))
@@ -90,7 +92,10 @@ def a_star(map, start, goal, h=h_pythagorean):
                 if s_p not in closed and g_temp < g[i][j]:
                     parent[i][j] = s
                     g[i][j] = g_temp
-                    f[i][j] = g[i][j] + h[i][j]
+                    if w != 0:
+                        f[i][j] = g[i][j] + w * h[i][j]
+                    else:
+                        f[i][j] = g[i][j] + h[i][j]
 
                     in_fringe = False
                     with fringe.mutex:
