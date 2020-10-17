@@ -2,21 +2,12 @@ import gridworld
 from math import *
 from queue import PriorityQueue
 
-
-class AIVertex:
-    vertex = None
-    coordinate = (-1, -1)
-    parent = None
-
-    def __init__(self, v, x, y):
-        self.vertex = v
-        self.coordinate = (x, y)
-
-
+# Heuristic Algorithm:
+# Pythagorean distance between current vertex and goal
 def h_pythagorean(v, goal):
     return sum((a - b) ** 2 for a, b in zip(goal, v))
 
-
+# Transition cost function
 def cost(map, s, s_prime):
     v = map[s[1]][s[0]]
     v_prime = map[s_prime[1]][s_prime[0]]
@@ -46,7 +37,12 @@ def cost(map, s, s_prime):
 
 
 # A* pathfinding algorithm
-def a_star(map, start, goal, h=h_pythagorean):
+# map: Gridworld terrain map
+# start: Tuple representing start coordinates in (x, y)
+# goal: Tuple representing goal coordinates in (x, y)
+# h: Heuristic function, default h_pythagorean
+# w: Weight, default 1.0
+def a_star(map, start, goal, w = 1, h = h_pythagorean):
     print("You getting in here?")
     rows = len(map)
     cols = len(map[0])
@@ -59,7 +55,7 @@ def a_star(map, start, goal, h=h_pythagorean):
     g = {i: {j: inf for j in range(cols)} for i in range(rows)}
     h = {i: {j: h((j, i), goal) for j in range(cols)} for i in range(rows)}
 
-    f[start[1]][start[0]] = 0 + h[start[1]][start[0]]
+    f[start[1]][start[0]] = 0 + w * h[start[1]][start[0]]
     g[start[1]][start[0]] = 0
 
     fringe.put((f[start[1]][start[0]], start))
@@ -90,7 +86,7 @@ def a_star(map, start, goal, h=h_pythagorean):
                 if s_p not in closed and g_temp < g[i][j]:
                     parent[i][j] = s
                     g[i][j] = g_temp
-                    f[i][j] = g[i][j] + h[i][j]
+                    f[i][j] = g[i][j] + w * h[i][j]
 
                     in_fringe = False
                     with fringe.mutex:
