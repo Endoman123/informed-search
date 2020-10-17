@@ -8,7 +8,7 @@ def isValid(row, col):
 
 
 def isDestination(row, col, goal):
-    if row == goal.coordinates[0] & col == goal.coordinates[1]:
+    if row == goal[1] & col == goal[0]:
         return True
     else:
         return False
@@ -37,26 +37,28 @@ def getHValue(x, y, i, goal, start):
         hValue = getHValCustom(x, y, goal, start)
     else:
         hValue = getHValManhattanDistance(x, y, goal)
+    return hValue
 
 def manhattan_distance(x, y, goal):
-    end_x, end_y = goal.coordinates
+    (end_x, end_y) = goal
     return abs(end_x - x) + abs(end_y - y)
 
 
 def pythagorean(x, y, goal):
-    end_x, end_y = goal.coordinates
+    (end_x, end_y) = goal
     h = math.sqrt(((end_x - x) * (end_x - x)) + ((end_y - y) * (end_y - y)))
+
     return h
 
 
 def getHValDiagonalDistance(x, y, goal):
-    end_x, end_y = goal.coordinates
+    (end_x, end_y) = goal
     h = max(abs(x - end_x), abs(y - end_y))
     return h
 
 
 def getHValManhattanDistanceHex (x, y, goal):
-    end_x, end_y = goal.coordinates
+    (end_x, end_y) = goal
     dx = end_x - x
     dy = end_y - y
     h = abs(dx + dy) / 2
@@ -65,15 +67,15 @@ def getHValManhattanDistanceHex (x, y, goal):
 
 
 def getHValCustom(x, y, goal, start):
-    end_x, end_y = goal.coordinates
-    begin_x, begin_y = start.coordinates
+    (end_x, end_y) = goal
+    (begin_x, begin_y) = start
     stDistance = sqrt(pow(end_x - begin_x, 2) + pow(end_y - begin_y, 2))
     h = abs(stDistance - (sqrt(pow(x - begin_x, 2) + pow(y - begin_y, 2))))
     return h
 
 
 def getHValManhattanDistance(x, y, goal):
-    end_x, end_y = goal.coordinates
+    (end_x, end_y) = goal
     h = abs(x - end_x) + abs(y - end_y)
     return h
 
@@ -85,6 +87,7 @@ def mark_destination(x, y, x_new, y_new, map):
     map[x_new][y_new].parent_x = x
     map[x_new][y_new].parent_y = y
     trace(map, map[x_new][y_new])
+    print("You got it")
     return
 
 def get_cost_regular(x, y, x_new, y_new, map):

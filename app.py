@@ -4,6 +4,8 @@ import gridworld
 from PyQt5.QtWidgets import * 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
+import a_star
+import a_sequential
 
 rows = 120
 cols = 160
@@ -86,16 +88,19 @@ class AppWindow(QMainWindow):
 
         return ret
     
-    def zoom(self, event):
+    def runAI(self, event):
         map = gridworld.terrain
         start = gridworld.start
         goal = gridworld.goal
 
+
+
         t = event.text()
         if t == "A*":
-            pass #TODO: Replace pass with A* call
+            a_sequential.a_sequential(map, start, goal)
         else:
             pass
+
 
     def zoom(self, event):
         view = self.__gridView
