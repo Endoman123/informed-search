@@ -51,12 +51,6 @@ def h_custom(**kwargs):
 def h_uniform_first(**kwargs):
     return 0
 
-# NOTE: Is this not just h_manhattan?
-# def getHValManhattanDistance(x, y, goal):
-#     (end_x, end_y) = goal
-#     h = abs(x - end_x) + abs(y - end_y)
-#     return h
-
 # Internally, maintain a list of all the usable heuristics functions
 all_heuristics = [
     h_pythagorean,
