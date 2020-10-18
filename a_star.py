@@ -5,8 +5,8 @@ from queue import PriorityQueue
 
 #-------------A* pathfinding algorithms--------------
 # NOTE: All A* are based off of sequential-heuristic.
-#       We use h_ignore as a dummy heuristic to make
-#       the anchor effectively useless
+#       We use h = inf as a dummy heuristic to make
+#       the supplemental heuristics useless
 
 # Weighted
 # map: Gridworld terrain map
@@ -63,15 +63,15 @@ def sequential(map, start, goal, w = 1.25, w2 = 2, list_h = all_heuristics):
             g = g_set[min_i]
             h = h_set[min_i]
 
-            pop = fringe.get()
+            pop = fringe.get() 
             s = pop[1]
 
-            if all(a == b for a, b in zip(s, goal)):  # End goal
+            if g[goal[1]][goal[0]] <= pop[0] and g[goal[1]][goal[0]] < inf:  # End goal 
                 ret = {'f': f, 'g': g, "h": h, 'map': [s]}
                 while parent[s[1]][s[0]] != None:
                     s = parent[s[1]][s[0]]
                     ret['map'].insert(0, s)
-
+                    
                 return ret
 
             for i in range(max(0, s[1] - 1), min(rows, s[1] + 2)):
