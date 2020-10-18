@@ -15,7 +15,7 @@ from queue import PriorityQueue
 # h: Heuristic function, default h_pythagorean
 # w: Weight, default 1.0
 def weighted(map, start, goal, w = 1, h = h_pythagorean):
-    return sequential(map, start, goal, w, inf, [h, lambda **kwa: inf])
+    return sequential(map, start, goal, w, 1, [h, lambda **kwa: inf])
 
 # Uniform-cost
 # map: Gridworld terrain map
@@ -49,7 +49,7 @@ def sequential(map, start, goal, w = 1.25, w2 = 2, list_h = all_heuristics):
         g_set[i][start[1]][start[0]] = 0
         fringes[i].put((f_set[i][start[1]][start[0]], start))
 
-    while not fringes[0].empty():
+    while fringes[0].queue[0][0] < inf:
         for k in range(1, n_h):
             minkey = fringes[0].queue[0][0]
             minkey2 = fringes[k].queue[0][0]
@@ -67,7 +67,9 @@ def sequential(map, start, goal, w = 1.25, w2 = 2, list_h = all_heuristics):
             s = pop[1]
 
             if g[goal[1]][goal[0]] <= pop[0] and g[goal[1]][goal[0]] < inf:  # End goal 
+                s = goal 
                 ret = {'f': f, 'g': g, "h": h, 'map': [s]}
+
                 while parent[s[1]][s[0]] != None:
                     s = parent[s[1]][s[0]]
                     ret['map'].insert(0, s)
@@ -81,8 +83,7 @@ def sequential(map, start, goal, w = 1.25, w2 = 2, list_h = all_heuristics):
                     if s_p == s:
                         continue
 
-                    c_g = 0 if w == 0 else g[s[1]][s[0]]
-                    g_temp = c_g + cost(map, s, s_p)
+                    g_temp = g[s[1]][s[0]] + cost(map, s, s_p)
 
                     if s_p not in closed and g_temp < g[i][j]:
                         parent[i][j] = s
