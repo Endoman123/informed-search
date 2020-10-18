@@ -43,7 +43,6 @@ def cost(map, s, s_prime):
 # h: Heuristic function, default h_pythagorean
 # w: Weight, default 1.0
 def a_star(map, start, goal, w = 1, h = h_pythagorean):
-    print("You getting in here?")
     rows = len(map)
     cols = len(map[0])
 
@@ -71,7 +70,6 @@ def a_star(map, start, goal, w = 1, h = h_pythagorean):
                 s = parent[s[1]][s[0]]
                 ret['map'].insert(0, s)
 
-            print("Found the destination")
             return ret
 
         closed += [s]

@@ -3,6 +3,7 @@ import os
 import math
 import gridworld
 import ai
+from a_star import a_star
 from PyQt5.QtWidgets import * 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -100,7 +101,7 @@ class AppWindow(QMainWindow):
         path = None
 
         if t == "A*":
-            info = ai.a_star(map, start, goal)
+            info = a_star(map, start, goal)
         else:
             pass
 

@@ -1,47 +1,16 @@
 import ai
 import gridworld
+from ai import *
 from math import *
 from queue import PriorityQueue
 
-
-class AIVertex:
-    vertex = None
-    coordinate = (-1, -1)
-    parent = None
-
-    def __init__(self, v, x, y):
-        self.vertex = v
-        self.coordinate = (x, y)
-
-
-def cost(map, s, s_prime):
-    v = map[s[1]][s[0]]
-    v_prime = map[s_prime[1]][s_prime[0]]
-    ret = inf
-
-    if v.isBlocked() or v_prime.isBlocked():  # You cannot transition between blocked cells
-        return ret
-
-    f_v = 1
-    f_vp = 1
-
-    if not any(a == b for a, b in zip(s, s_prime)):  # Diagonal
-        f_v = sqrt(2)
-        f_vp = sqrt(2)
-
-    elif v.isHighway() and v_prime.isHighway():  # On a highway
-        f_v /= 4
-        f_vp /= 4
-
-    f_v *= 2 if v.isHardToTraverse() else 1
-    f_vp *= 2 if v_prime.isHardToTraverse() else 1
-
-    ret = f_v + f_vp
-    ret /= 2
-
-    return ret
-
-def a_sequential(map, start, goal, w1=1.25, w2=2):
+# A* Sequential search
+# map: Gridworld terrain map
+# start: Tuple representing start coordinate in (x, y)
+# goal: Tuple representing goal coordinate in (x, y)
+# w1: Weight 1, default 1.25
+# w2: Weight 2, default 2
+def a_sequential(map, start, goal, w1 = 1.25, w2 = 2):
     rows = len(map)
     cols = len(map[0])
 
@@ -57,10 +26,12 @@ def a_sequential(map, start, goal, w1=1.25, w2=2):
         for x in range(rows):
             for y in range(cols):
                 h[i][x][y] = ai.getHValue(x, y, i, goal, start)
+
     for i in range(5):
         f[i][start[1]][start[0]] = 0 + w1 * h[i][start[1]][start[0]]
         g[i][start[1]][start[0]] = 0
         fringes[i].put((f[i][start[1]][start[0]], start))
+
     while not fringes[0].empty():
         for index in range(1, 5):
             minkey = fringes[0].queue[0][0]
