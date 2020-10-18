@@ -3,7 +3,7 @@ import os
 import math
 import gridworld
 import ai
-from a_star import *
+import a_star
 from PyQt5.QtWidgets import * 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -46,8 +46,9 @@ class AppWindow(QMainWindow):
         ret = QToolBar("AI", self)
 
         ret.addAction("Uniform A*")
-        ret.addAction("A*") 
-        
+        ret.addAction("Weighted A*") 
+        ret.addAction("Sequential A*") 
+
         ret.actionTriggered[QAction].connect(self.runAI)
 
         return ret
@@ -100,11 +101,13 @@ class AppWindow(QMainWindow):
         t = event.text()
        
         path = None
-
-        if t == "A*":
-            info = a_star(map, start, goal)
-        elif t == "Uniform A*":
-            info = uniform_a_star(map, start, goal)
+        
+        if t == "Uniform A*":
+            info = a_star.uniform(map, start, goal)
+        elif t == "Weighted A*":
+            info = a_star.weighted(map, start, goal)
+        elif t == "Sequential A*": 
+            info = a_star.sequential(map, start, goal) 
         else:
             pass
 
@@ -298,6 +301,7 @@ class QGridScene(QGraphicsScene):
                 path.addToGroup(line)
 
             parent = v
+
         for y in range(rows):
             for x in range(cols):
                 v_f = f[y + 1][x + 1]
