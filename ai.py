@@ -13,7 +13,7 @@ def h_pythagorean(**kwargs):
     goal = kwargs['goal']
     v = kwargs['v']
 
-    return sum((a - b) ** 2 for a, b in zip(goal, v))
+    return sum((a - b) ** 2 for a, b in zip(goal, v)) ** 0.5
 
 # Manhattan distance between current vertex and goal
 def h_manhattan(**kwargs):
