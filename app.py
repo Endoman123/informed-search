@@ -3,7 +3,7 @@ import os
 import math
 import gridworld
 import ai
-from a_star import a_star
+from a_star import *
 from PyQt5.QtWidgets import * 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -45,6 +45,7 @@ class AppWindow(QMainWindow):
     def buildAIToolbar(self):
         ret = QToolBar("AI", self)
 
+        ret.addAction("Uniform A*")
         ret.addAction("A*") 
         
         ret.actionTriggered[QAction].connect(self.runAI)
@@ -102,6 +103,8 @@ class AppWindow(QMainWindow):
 
         if t == "A*":
             info = a_star(map, start, goal)
+        elif t == "Uniform A*":
+            info = uniform_a_star(map, start, goal)
         else:
             pass
 
@@ -214,6 +217,9 @@ class QGridScene(QGraphicsScene):
 
         self.__start.setVisible(True)
         self.__goal.setVisible(True)
+        
+        for c in self.__path.childItems():
+            self.removeItem(c)
 
         for c in self.__highways.childItems():
             self.removeItem(c)
@@ -233,6 +239,7 @@ class QGridScene(QGraphicsScene):
                         b.setStyle(Qt.SolidPattern)
             
                     cells[y * cols + x].setBrush(b)
+                    cells[y * cols + x].setToolTip(f"({x}, {y})")
 
                     if v.isHighway():
                         v_n = gridworld.terrain[y][x + 1]
@@ -275,6 +282,9 @@ class QGridScene(QGraphicsScene):
         f = info['f']
         g = info['g']
         h = info['h']
+
+        for c in path.childItems():
+            self.removeItem(c)
 
         for v in map:
             xc = (v[0] - 1) * self.__WIDTH + 0.5 * self.__WIDTH
