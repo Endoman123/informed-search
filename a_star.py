@@ -8,6 +8,13 @@ from queue import PriorityQueue
 #       We use h = inf as a dummy heuristic to make
 #       the supplemental heuristics useless
 
+# Default A*
+# map: Gridworld terrain map
+# start: Tuple representing start coordinates in (x, y)
+# goal: Tuple representing goal coordinates in (x, y)
+def default(map, start, goal):
+    return weighted(map, start, goal)
+
 # Weighted
 # map: Gridworld terrain map
 # start: Tuple representing start coordinates in (x, y)
@@ -24,8 +31,6 @@ def weighted(map, start, goal, w = 1, h = h_pythagorean):
 def uniform(map, start, goal):
     return weighted(map, start, goal, 0, h_uniform_first) 
 
-def a_regular (map, start, goal, h = h_pythagorean):
-    return sequential(map, start, goal, 1, 1, [h, lambda **kwa: inf])
 # Sequential-Heuristic
 # map: Gridworld terrain map
 # start: Tuple representing start coordinate in (x, y)

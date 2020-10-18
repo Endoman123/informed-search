@@ -110,7 +110,7 @@ class AppWindow(QMainWindow):
         elif t == "Sequential A*": 
             info = a_star.sequential(map, start, goal) 
         elif t == "A*":
-            info = a_star.a_regular(map, start, goal)
+            info = a_star.default(map, start, goal)
         else:
             pass
 
@@ -201,17 +201,25 @@ class QGridScene(QGraphicsScene):
         points.addToGroup(self.__start)
         points.addToGroup(self.__goal)
 
+        trans = QColor(0, 0, 0, 1)
+
         for i in range(rows):
             for j in range(cols):
                 cells.addToGroup(QGraphicsRectItem(j * self.__WIDTH, i * self.__HEIGHT, self.__WIDTH, self.__HEIGHT))
 
         for x in range(0, cols + 1):
             xc = x * self.__WIDTH
-            grid.addToGroup(QGraphicsLineItem(xc, 0, xc, height))
+            line = QGraphicsLineItem(xc, 0, xc, height)
+            line.setPen(QPen(trans))
+
+            grid.addToGroup(line)
 
         for y in range(0, rows + 1):
             yc = y * self.__HEIGHT
-            grid.addToGroup(QGraphicsLineItem(0, yc, width, yc))
+            line = QGraphicsLineItem(0, yc, width, yc) 
+            line.setPen(QPen(trans))
+            
+            grid.addToGroup(line)
 
         self.__cells = cells
         self.__highways = highways
