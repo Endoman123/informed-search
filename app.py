@@ -1,11 +1,11 @@
 import sys
+import os
 import math
 import gridworld
+import ai
 from PyQt5.QtWidgets import * 
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import a_star
-import a_sequential
 
 rows = 120
 cols = 160
@@ -15,6 +15,7 @@ class AppWindow(QMainWindow):
     __gridView = None
     __dialog = None
     __menu = None
+
     def __init__(self, parent = None):
         super().__init__(parent)
         
@@ -25,11 +26,10 @@ class AppWindow(QMainWindow):
         gridView = QGridView(grid)
 
         self.setMenuBar(menu) 
-        self.addToolBar(toolbar)
+        self.addToolBar(toolbar) 
         self.addToolBar(ai)
         self.setCentralWidget(gridView)         
         self.setWindowTitle("Gridworld (Informed Search)") 
-
 
         dialog = QFileDialog(self) 
         dialog.setViewMode(QFileDialog.List)
@@ -43,7 +43,7 @@ class AppWindow(QMainWindow):
 
     def buildAIToolbar(self):
         ret = QToolBar("AI", self)
-    
+
         ret.addAction("A*") 
         
         ret.actionTriggered[QAction].connect(self.runAI)
@@ -87,28 +87,33 @@ class AppWindow(QMainWindow):
         ret.triggered[QAction].connect(self.doFileAction)
 
         return ret
-    
+
     def runAI(self, event):
         map = gridworld.terrain
         start = gridworld.start
         goal = gridworld.goal
 
-
+        grid = self.__grid
 
         t = event.text()
+       
+        path = None
+
         if t == "A*":
-            a_sequential.a_sequential(map, start, goal)
+            info = ai.a_star(map, start, goal)
         else:
             pass
 
+        if info:
+            grid.displayPathfinding(info)    
 
     def zoom(self, event):
         view = self.__gridView
         t = event.text()
         if t == "Zoom +":
-            view.zoom(1.1)
+            view.zoom(10)
         elif t == "Zoom -":
-            view.zoom(0.9)
+            view.zoom(0.1)
         else:
             view.resetZoom()
 
@@ -140,6 +145,7 @@ class QGridScene(QGraphicsScene):
     __highways = None 
     __start = None
     __goal = None
+    __path = None
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -147,19 +153,22 @@ class QGridScene(QGraphicsScene):
         highways = QGraphicsItemGroup() 
         points = QGraphicsItemGroup()
         grid = QGraphicsItemGroup()
-         
+        path = QGraphicsItemGroup()
+
         width = cols * self.__WIDTH
         height = rows * self.__HEIGHT
-        
+       
         cells.setZValue(0) 
         grid.setZValue(1)
         highways.setZValue(2)
         points.setZValue(3)
-         
+        path.setZValue(4)
+
         self.addItem(cells) 
         self.addItem(grid)
         self.addItem(highways) 
         self.addItem(points)
+        self.addItem(path)
 
         self.setSceneRect(0, 0, width, height)
         self.setItemIndexMethod(QGraphicsScene.NoIndex)
@@ -196,6 +205,7 @@ class QGridScene(QGraphicsScene):
 
         self.__cells = cells
         self.__highways = highways
+        self.__path = path
 
     def updateScene(self):
         self.__start.setPos((gridworld.start[0] - 1) * self.__WIDTH, (gridworld.start[1] - 1) * self.__HEIGHT)
@@ -222,7 +232,6 @@ class QGridScene(QGraphicsScene):
                         b.setStyle(Qt.SolidPattern)
             
                     cells[y * cols + x].setBrush(b)
-                    cells[y * cols + x].setToolTip(repr(v))
 
                     if v.isHighway():
                         v_n = gridworld.terrain[y][x + 1]
@@ -256,10 +265,40 @@ class QGridScene(QGraphicsScene):
                             h.setPen(p_hw)
                             self.__highways.addToGroup(h)
  
-    def displayPathfinding(self):
-        for i in range(rows):
-            for j in range(cols):
-                pass
+    def displayPathfinding(self, info):
+        path = self.__path  
+        cells = self.__cells.childItems() 
+        parent = None
+
+        map = info['map']
+        f = info['f']
+        g = info['g']
+        h = info['h']
+
+        for v in map:
+            xc = (v[0] - 1) * self.__WIDTH + 0.5 * self.__WIDTH
+            yc = (v[1] - 1) * self.__HEIGHT + 0.5 * self.__HEIGHT 
+
+            if parent != None:
+                pxc = (parent[0] - 1) * self.__WIDTH + 0.5 * self.__WIDTH
+                pyc = (parent[1] - 1) * self.__HEIGHT + 0.5 * self.__HEIGHT 
+                line = QGraphicsLineItem(xc, yc, pxc, pyc)
+                line.setPen(QPen(Qt.red))
+                path.addToGroup(line)
+
+            parent = v
+        for y in range(rows):
+            for x in range(cols):
+                v_f = f[y + 1][x + 1]
+                v_g = g[y + 1][x + 1]
+                v_h = h[y + 1][x + 1]
+
+                tt = f"({x}, {y})" + os.linesep
+                tt += f"f: {v_f}" + os.linesep
+                tt += f"g: {v_g}" + os.linesep
+                tt += f"h: {v_h}" + os.linesep
+
+                cells[y * cols + x].setToolTip(tt)
 
 class QGridView(QGraphicsView):
     __zoom = 1
