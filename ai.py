@@ -36,6 +36,7 @@ def h_manhattan_hex(**kwargs):
 
     return abs(sum((a - b) for a, b in zip(goal, v))) / len(v) 
 
+# Custom heuristic using the distance from the start as the heuristic
 def h_custom(**kwargs):
     start = kwargs['start']
     goal = kwargs['goal']
@@ -45,6 +46,11 @@ def h_custom(**kwargs):
     startDist = sum((a - b) ** 2 for a, b in zip(v, start)) ** 0.5
     return abs(totalDist - startDist)
 
+# Uniform-first "heuristic"
+# Simply makes all h-values 0
+def h_uniform_first(**kwargs):
+    return 0
+
 # NOTE: Is this not just h_manhattan?
 # def getHValManhattanDistance(x, y, goal):
 #     (end_x, end_y) = goal
@@ -52,7 +58,7 @@ def h_custom(**kwargs):
 #     return h
 
 # Internally, maintain a list of all the usable heuristics functions
-list_h = [
+all_heuristics = [
     h_pythagorean,
     h_manhattan,
     h_manhattan_hex,
