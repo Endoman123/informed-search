@@ -35,7 +35,6 @@ def cost(map, s, s_prime):
 
     return ret
 
-
 # A* pathfinding algorithm
 # map: Gridworld terrain map
 # start: Tuple representing start coordinates in (x, y)
@@ -79,7 +78,8 @@ def a_star(map, start, goal, w = 1, h = h_pythagorean):
                 if s_p == s:
                     continue
 
-                g_temp = g[s[1]][s[0]] + cost(map, s, s_p)
+                c_g = g[s[1]][s[0]] if w != 0 else 0
+                g_temp =  + cost(map, s, s_p)
 
                 if s_p not in closed and g_temp < g[i][j]:
                     parent[i][j] = s
@@ -95,3 +95,10 @@ def a_star(map, start, goal, w = 1, h = h_pythagorean):
 
     print("failed")
     return None
+
+# Uniform-cost search algorithm
+# map: Gridworld terrain map
+# start: Tuple representing start coordinates in (x, y)
+# goal: Tuple representing goal coordinates in (x, y)
+def uniform_a_star(map, start, goal):
+    return a_star(map, start, goal, 0, lambda *args: 0) 
