@@ -13,7 +13,7 @@ from queue import PriorityQueue
 # start: Tuple representing start coordinates in (x, y)
 # goal: Tuple representing goal coordinates in (x, y)
 def default(map, start, goal):
-    return weighted(map, start, goal)
+    return weighted(map, start, goal, 1)
 
 # Weighted
 # map: Gridworld terrain map
@@ -21,7 +21,7 @@ def default(map, start, goal):
 # goal: Tuple representing goal coordinates in (x, y)
 # h: Heuristic function, default h_pythagorean
 # w: Weight, default 1.0
-def weighted(map, start, goal, w = 1, h = h_pythagorean):
+def weighted(map, start, goal, w=1, h = h_pythagorean):
     return sequential(map, start, goal, w, 1, [h, lambda **kwa: inf])
 
 # Uniform-cost
@@ -42,7 +42,7 @@ def sequential(map, start, goal, w = 1.25, w2 = 2, list_h = all_heuristics):
     rows = len(map)
     cols = len(map[0])
     n_h = len(list_h)
-
+    expansions = 0
     fringes = [PriorityQueue() for i in range(5)]
     closed = []
     
@@ -76,7 +76,7 @@ def sequential(map, start, goal, w = 1.25, w2 = 2, list_h = all_heuristics):
             if g[goal[1]][goal[0]] <= pop[0] and g[goal[1]][goal[0]] < inf:  # End goal 
                 s = goal 
                 ret = {'f': f, 'g': g, "h": h, 'map': [s]}
-
+                print("Expansions: ", expansions)
                 while parent[s[1]][s[0]] != None:
                     s = parent[s[1]][s[0]]
                     ret['map'].insert(0, s)
@@ -96,7 +96,7 @@ def sequential(map, start, goal, w = 1.25, w2 = 2, list_h = all_heuristics):
                         parent[i][j] = s
                         g[i][j] = g_temp
                         f[i][j] = g[i][j] + w * h[i][j]
-
+                        expansions += 1
                         in_fringe = False
                         with fringe.mutex:
                             in_fringe = s_p in fringe.queue
