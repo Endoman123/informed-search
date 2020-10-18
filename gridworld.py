@@ -22,13 +22,7 @@ c_hardregions = ()
 
 class Vertex:
     __code = '1'
-    f = -1
-    g = -1
-    h = -1
-    parent_x = -1
-    parent_y = -1
-    coordinates = (-1, -1)
-
+    
     def __init__(self, c):
         self.__code = c
 
