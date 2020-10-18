@@ -1,7 +1,6 @@
 import gridworld
 import math
-from math import sqrt
-
+from math import *
 
 def isValid(row, col):
     return (row >= 0) & (row < 120) & (col >= 0) & (col < 160)
@@ -89,6 +88,33 @@ def mark_destination(x, y, x_new, y_new, map):
     trace(map, map[x_new][y_new])
     print("You got it")
     return
+
+def cost(map, s, s_prime):
+    v = map[s[1]][s[0]]
+    v_prime = map[s_prime[1]][s_prime[0]]
+    ret = inf
+
+    if v.isBlocked() or v_prime.isBlocked():  # You cannot transition between blocked cells
+        return ret
+
+    f_v = 1
+    f_vp = 1
+
+    if not any(a == b for a, b in zip(s, s_prime)):  # Diagonal
+        f_v = sqrt(2)
+        f_vp = sqrt(2)
+
+    elif v.isHighway() and v_prime.isHighway():  # On a highway
+        f_v /= 4
+        f_vp /= 4
+
+    f_v *= 2 if v.isHardToTraverse() else 1
+    f_vp *= 2 if v_prime.isHardToTraverse() else 1
+
+    ret = f_v + f_vp
+    ret /= 2
+
+    return ret
 
 def get_cost_regular(x, y, x_new, y_new, map):
     if map[x][y].isHardToTraverse() is False and map[x][y].isHighway() is False:
