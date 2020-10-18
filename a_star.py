@@ -24,6 +24,8 @@ def weighted(map, start, goal, w = 1, h = h_pythagorean):
 def uniform(map, start, goal):
     return weighted(map, start, goal, 0, h_uniform_first) 
 
+def a_regular (map, start, goal, h = h_pythagorean):
+    return sequential(map, start, goal, 1, 1, [h, lambda **kwa: inf])
 # Sequential-Heuristic
 # map: Gridworld terrain map
 # start: Tuple representing start coordinate in (x, y)

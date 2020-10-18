@@ -45,9 +45,10 @@ class AppWindow(QMainWindow):
     def buildAIToolbar(self):
         ret = QToolBar("AI", self)
 
-        ret.addAction("Uniform A*")
+        ret.addAction("Uniform-Cost")
         ret.addAction("Weighted A*") 
-        ret.addAction("Sequential A*") 
+        ret.addAction("Sequential A*")
+        ret.addAction("A*") 
 
         ret.actionTriggered[QAction].connect(self.runAI)
 
@@ -102,12 +103,14 @@ class AppWindow(QMainWindow):
        
         path = None
         
-        if t == "Uniform A*":
+        if t == "Uniform-Cost":
             info = a_star.uniform(map, start, goal)
         elif t == "Weighted A*":
             info = a_star.weighted(map, start, goal)
         elif t == "Sequential A*": 
             info = a_star.sequential(map, start, goal) 
+        elif t == "A*":
+            info = a_star.a_regular(map, start, goal)
         else:
             pass
 
