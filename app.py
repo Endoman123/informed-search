@@ -101,7 +101,7 @@ class AppWindow(QMainWindow):
         le_w = QLineEdit("1")
         le_w.setValidator(v_w)
 
-        sw_layout.addRow("Heuristic Function:", cbo_h)
+        sw_layout.addRow("Heuristic function:", cbo_h)
         sw_layout.addRow("Weight:", le_w)
 
         s_weighted.setLayout(sw_layout)
@@ -116,7 +116,7 @@ class AppWindow(QMainWindow):
         le_w2.setValidator(v_w)
 
         ss_layout.addRow("Overall weight:", le_w1)
-        ss_layout.addRow("Non-Anchor Weight:", le_w2)
+        ss_layout.addRow("Non-anchor weight:", le_w2)
 
         s_seq.setLayout(ss_layout)
 
@@ -150,6 +150,8 @@ class AppWindow(QMainWindow):
         self.__w = le_w
         self.__w1 = le_w1
         self.__w2 = le_w2
+
+        ret.setFixedWidth(250)     
 
         return ret
 
