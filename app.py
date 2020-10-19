@@ -15,21 +15,36 @@ class AppWindow(QMainWindow):
     __grid = None 
     __gridView = None
     __dialog = None
+    __filemenu = None
     __menu = None
+    __ai = None
+    __settings_w = None
+    __settings_s = None
+    __family = None
+    __heuristic = None
+    __w_w1 = None
+    __w_w2 = None
 
     def __init__(self, parent = None):
         super().__init__(parent)
-        
+       
+        central = QWidget()
         toolbar = self.buildGridToolbar()
-        ai = self.buildAIToolbar()
+        ai = self.buildAISettings()
         menu = self.buildMenubar()
         grid = QGridScene() 
         gridView = QGridView(grid)
 
+        ai.setEnabled(False)
+
+        c_layout = QHBoxLayout()
+        c_layout.addWidget(ai)
+        c_layout.addWidget(gridView)
+        central.setLayout(c_layout)
+
         self.setMenuBar(menu) 
         self.addToolBar(toolbar) 
-        self.addToolBar(ai)
-        self.setCentralWidget(gridView)         
+        self.setCentralWidget(central)         
         self.setWindowTitle("Gridworld (Informed Search)") 
 
         dialog = QFileDialog(self) 
@@ -41,16 +56,100 @@ class AppWindow(QMainWindow):
         self.__gridView = gridView
         self.__dialog = dialog
         self.__menu = menu
+        self.__ai = ai
 
-    def buildAIToolbar(self):
-        ret = QToolBar("AI", self)
+    def buildAISettings(self):
+        ret = QWidget()
+        layout = QVBoxLayout()
+        v_w = QDoubleValidator() 
 
-        ret.addAction("Uniform-Cost")
-        ret.addAction("Weighted A*") 
-        ret.addAction("Sequential A*")
-        ret.addAction("A*") 
+        family = QGroupBox("A* Algorithm") 
+        f_layout = QVBoxLayout()
+        f_group = QButtonGroup()
 
-        ret.actionTriggered[QAction].connect(self.runAI)
+        rbtn_uc = QRadioButton("Uniform-Cost")
+        rbtn_w = QRadioButton("Weighted")
+        rbtn_s = QRadioButton("Sequential-Heuristic")
+
+        f_group.addButton(rbtn_uc, 0)
+        f_group.addButton(rbtn_w, 1)
+        f_group.addButton(rbtn_s, 2)
+
+        f_layout.addWidget(rbtn_uc)
+        f_layout.addWidget(rbtn_w)
+        f_layout.addWidget(rbtn_s)
+      
+        f_group.button(1).setChecked(True)
+
+        family.setLayout(f_layout)
+
+        v_w.setBottom(1.0)
+        v_w.setDecimals(4)
+
+        s_weighted = QGroupBox("Weighted A* Settings")
+        sw_layout = QFormLayout()
+
+        cbo_h = QComboBox()
+        cbo_h.addItems([
+            "Pythagorean",
+            "Manhattan",
+            "Manhattan (Hex)",
+            "Axial",
+            "Start Delta", 
+        ])
+
+        le_w = QLineEdit("1")
+        le_w.setValidator(v_w)
+
+        sw_layout.addRow("Heuristic Function:", cbo_h)
+        sw_layout.addRow("Weight:", le_w)
+
+        s_weighted.setLayout(sw_layout)
+
+        s_seq = QGroupBox("Sequential-Heuristic A* Settings") 
+        ss_layout = QFormLayout()
+
+        le_w1 = QLineEdit("1.25")
+        le_w2 = QLineEdit("2")
+
+        le_w1.setValidator(v_w)
+        le_w2.setValidator(v_w)
+
+        ss_layout.addRow("Overall weight:", le_w1)
+        ss_layout.addRow("Non-Anchor Weight:", le_w2)
+
+        s_seq.setLayout(ss_layout)
+
+        s_weighted.setVisible(True)
+        s_seq.setVisible(False)
+
+        btn_runAI = QPushButton("Run AI")
+
+        family.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        s_weighted.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        s_seq.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+        layout.addWidget(family)
+        layout.addWidget(s_weighted)
+        layout.addWidget(s_seq)
+        layout.addStretch(1) 
+        layout.addWidget(btn_runAI)
+        
+        layout.setAlignment(Qt.AlignTop)
+
+        ret.setLayout(layout)
+
+        f_group.idToggled.connect(self.selectAStar)
+        btn_runAI.clicked[bool].connect(self.runAI)
+      
+        self.__settings_w = s_weighted
+        self.__settings_s = s_seq
+
+        self.__family = f_group
+        self.__heuristic = cbo_h 
+        self.__w = le_w
+        self.__w1 = le_w1
+        self.__w2 = le_w2
 
         return ret
 
@@ -88,9 +187,18 @@ class AppWindow(QMainWindow):
         a_save.setShortcut("Ctrl+S")
         a_quit.setShortcut("Ctrl+Q")
 
+        a_save.setEnabled(False)
+
         ret.triggered[QAction].connect(self.doFileAction)
 
+        self.__filemenu = mFile
+
         return ret
+
+    def selectAStar(self, i, check):
+        if check:
+            self.__settings_w.setVisible(i == 1)
+            self.__settings_s.setVisible(i == 2)
 
     def runAI(self, event):
         map = gridworld.terrain
@@ -98,24 +206,35 @@ class AppWindow(QMainWindow):
         goal = gridworld.goal
 
         grid = self.__grid
-
-        t = event.text()
-       
-        path = None
-        
-        if t == "Uniform-Cost":
+        algo = self.__family.checkedId()
+                
+        if algo == 0: # Uniform-Cost
             info = a_star.uniform(map, start, goal)
-        elif t == "Weighted A*":
-            info = a_star.weighted(map, start, goal)
-        elif t == "Sequential A*": 
-            info = a_star.sequential(map, start, goal) 
-        elif t == "A*":
-            info = a_star.default(map, start, goal)
-        else:
-            pass
+        elif algo == 1: # Weighted
+            w = float(self.__w.text())
+            h = self.__heuristic.currentText()
+    
+            if h == "Manhattan":
+                h = ai.h_manhattan
+            elif h == "Manhattan (Hex)":
+                h = ai.h_manhattan_hex
+            elif h == "Axial":
+                h = ai.h_axis_dist
+            elif h == "Start Delta":
+                h = ai.h_delta
+            else:
+                h = ai.h_pythagorean
+
+            info = a_star.weighted(map, start, goal, w, h)
+
+        elif algo == 2: # Sequential
+            w1 = float(self.__w1.text())
+            w2 = float(self.__w2.text())
+
+            info = a_star.sequential(map, start, goal, w1, w2)
 
         if info:
-            grid.displayPathfinding(info)    
+            grid.displayPathfinding(info)
 
     def zoom(self, event):
         view = self.__gridView
@@ -131,6 +250,8 @@ class AppWindow(QMainWindow):
         t = event.text() 
         dialog = self.__dialog
         grid = self.__grid
+        ai = self.__ai
+
         if t == "New":
             gridworld.initGridworld()
             grid.updateScene()
@@ -147,6 +268,10 @@ class AppWindow(QMainWindow):
                 grid.updateScene()
         else:
             QApplication.quit()
+
+        ai.setEnabled(True)
+
+        next(a for a in self.__filemenu.actions() if a.text() == "Save").setEnabled(True)
 
 class QGridScene(QGraphicsScene):
     __WIDTH = 7 
