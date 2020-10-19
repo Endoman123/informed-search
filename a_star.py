@@ -77,6 +77,7 @@ def sequential(map, start, goal, w = 1.25, w2 = 2, list_h = all_heuristics):
                 s = goal 
                 ret = {'f': f, 'g': g, "h": h, 'map': [s]}
                 print("Expansions: ", expansions)
+
                 while parent[s[1]][s[0]] != None:
                     s = parent[s[1]][s[0]]
                     ret['map'].insert(0, s)

@@ -37,7 +37,7 @@ def h_manhattan_hex(**kwargs):
     return abs(sum((a - b) for a, b in zip(goal, v))) / len(v) 
 
 # Custom heuristic using the distance from the start as the heuristic
-def h_custom(**kwargs):
+def h_delta(**kwargs):
     start = kwargs['start']
     goal = kwargs['goal']
     v = kwargs['v']
@@ -57,7 +57,7 @@ all_heuristics = [
     h_manhattan,
     h_manhattan_hex,
     h_axis_dist,
-    h_custom
+    h_delta
 ]
 
 def isAdmissible (hCur, hParent, cost):
