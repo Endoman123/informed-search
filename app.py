@@ -10,6 +10,8 @@ from PyQt5.QtGui import *
 
 rows = 120
 cols = 160
+w_highway = 3
+w_path = 2
 
 class AppWindow(QMainWindow):
     __grid = None 
@@ -389,7 +391,7 @@ class QGridScene(QGraphicsScene):
                         v_e = gridworld.terrain[y + 1][x + 2]
 
                         p_hw = QPen(Qt.blue)
-                        p_hw.setWidth(2)
+                        p_hw.setWidth(w_highway)
 
                         xc = x * self.__WIDTH + 0.5 * self.__WIDTH
                         yc = y * self.__HEIGHT + 0.5 * self.__HEIGHT
@@ -435,7 +437,9 @@ class QGridScene(QGraphicsScene):
                 pxc = (parent[0] - 1) * self.__WIDTH + 0.5 * self.__WIDTH
                 pyc = (parent[1] - 1) * self.__HEIGHT + 0.5 * self.__HEIGHT 
                 line = QGraphicsLineItem(xc, yc, pxc, pyc)
-                line.setPen(QPen(Qt.red))
+                pen = QPen(Qt.red)
+                pen.setWidth(w_path)
+                line.setPen(pen)
                 path.addToGroup(line)
 
             parent = v
